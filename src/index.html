@@ -1,53 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>QregPV</title>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
         crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/ExtJS/packages/ext-theme-stratum/build/resources/ext-theme-stratum-all.css?v=3924">
-	<link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/ExtJS/packages/sencha-charts/build/crisp/resources/sencha-charts-all.css?v=3924">
-	<link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/Default1.css?v=3924">	
-	<link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/Default2.css?v=3924">	
+        <link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/ExtJS/packages/ext-theme-stratum/build/resources/ext-theme-stratum-all.css?v=3924">
+        <link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/ExtJS/packages/sencha-charts/build/crisp/resources/sencha-charts-all.css?v=3924">
+        <link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/Default1.css?v=3924">
+        <link rel="stylesheet" type="text/css" href="//utv.registercentrum.se/Default2.css?v=3924">
 </head>
+
 <body>
+    <nav>
+        <ul>
+            <li><a href="#1867">Overview</a></li>
+        </ul>
+    </nav>
     <div id="body-ct" style="margin: 10px auto; width: 740px;">
-        <h1 style="margin-bottom: 0;">Översikt <small style="font-size: 65%; color: #777;">Hypertoni</small></h1>
-        <p class="qreg-head" style="line-height: 1.3; font-size: 16px;">
-        Andel av patienterna som uppnår olika målvärden. Här redovisas patienter med hypertoni utan diabetes eller kranskärlssjukdom. De senaste värdena för varje patient ingår. Uppdatering sker en gång i månaden. För de flesta indikatorer hämtas värden 450 dagar tillbaka i tiden.<br>
-
-            Resultatet nedan är baserat på senaste mätvärden vid datauttag <span id="data-collection-date" style="font-style: italic;">-</span>.
-        </p>
         <div id="main-container"></div>
-        <p style="font-size: 12px;font-style: italic;color: #555;">
-            *) Punktdiagrammet visar vårdcentralens ranking bland samtliga vårdcentraler, för det senaste rapporterade värdet.
-        </p>
-        <p style="font-size: 12px;font-style: italic;color: #555;">
-            För mer information se <a href="#!page?id=2030">frågor och svar</a>
-        </p>
     </div>
-
-
-
-    <script type="text/javascript">
-        // Widget specific settings
-        window.__qregPVSettings = {
-            colors: ['#AAA38E', '#3CB6CE'],
-            colors: ['#CDC9BC', '#E98300'],
-            hypertoni: true,
-            indicatorType: ['1001', '1002', '1003', '1004', '1005', '1006', '1007', '1008', '1009']
-        };
-    </script>
     <!-- Stratum dependencies START -->
     <script type="text/javascript" src="//utv.registercentrum.se/ExtJS/ext-all-debug.js?v=3924"></script>
     <script type="text/javascript" src="//utv.registercentrum.se/ExtJS/packages/ext-theme-stratum/build/ext-theme-stratum-debug.js?v=3924"></script>
-	<script type="text/javascript" src="//utv.registercentrum.se/ExtJS/packages/sencha-charts/build/sencha-charts-debug.js?v=3924"></script>
-	<script type="text/javascript" src="//utv.registercentrum.se/ExtJS/packages/ext-locale/build/ext-locale-sv_SE-debug.js?v=3924"></script>
-	<script type="text/javascript" src="//utv.registercentrum.se/Scripts/Repository.js?v=3924"></script>
+    <script type="text/javascript" src="//utv.registercentrum.se/ExtJS/packages/sencha-charts/build/sencha-charts-debug.js?v=3924"></script>
+    <script type="text/javascript" src="//utv.registercentrum.se/ExtJS/packages/ext-locale/build/ext-locale-sv_SE-debug.js?v=3924"></script>
+    <script type="text/javascript" src="//utv.registercentrum.se/Scripts/Repository.js?v=3924"></script>
     <!-- Stratum dependencies END -->
-    <script type="text/javascript" src="mockapikey.js"></script>
-    <script type="text/javascript" src="widgetscript.js"></script>
-    <script type="text/javascript" src="views/HypOverview.js"></script>
-    
+    <script type="text/javascript" src="Scripts/widgetscript.js"></script>
+    <script type="text/javascript" src="Scripts/mockapikey.js"></script>
+    <script type="text/javascript" src="Scripts/pageLoader.js"></script>
 </body>
+
 </html>

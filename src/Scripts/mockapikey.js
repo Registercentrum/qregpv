@@ -10,7 +10,7 @@
                     APIKey: 'Hoe8m0raiO4='
                 }
             });
-            if (options.url.indexOf('stratum') === -1) {
+            if (options.url.indexOf('stratum') === -1 && options.url.indexOf('devapi') === -1) {
                 options.url = '//stratum.registercentrum.se' + options.url;
             }
         // }
