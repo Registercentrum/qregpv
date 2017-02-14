@@ -5,7 +5,7 @@
     var pageLoader = {
         settings: {
             widgetUrl: '//localhost:3005/devapi/pages/{0}',
-            containerId: 'main-container',
+            containerId: 'page-container',
             defaultPageId: 1867
         },
         init: function() {

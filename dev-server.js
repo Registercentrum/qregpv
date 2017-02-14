@@ -6,7 +6,8 @@ const port = process.env.DEV_PORT || 3005;
 const baseUrl = '';
 
 const codeToNameMap = {
-    1867: 'HypOverview'
+    1867: 'HypOverview',
+    1899: 'HypOverTime'
 }
 
 app.use(function(req, res, next) {
