@@ -1,22 +1,32 @@
 Repository.Local.Methods.initialize(function(_m) {
-    var tipStore, scatterStore, mainChart, scatterTitle,
+    var tipStore,
+        scatterStore,
+        mainChart,
+        scatterTitle,
         clinicComboPrimary,
         clinicComboSecondary,
         currMonth = _m.getCurrentMonth(),
         currYear = _m.getCurrentYear(),
         startMonth = _m.getStartMonth(),
         startYear = _m.getStartYear(),
-        rankingChart, rankingChartContainer, configContainer,
-        loadScatterChart, tipChart, mainStore,
-        clinicChangeFn, checkBoxes;
+        rankingChart,
+        rankingChartContainer,
+        configContainer,
+        loadScatterChart,
+        tipChart,
+        mainStore,
+        clinicChangeFn,
+        checkBoxes;
 
     scatterStore = Ext.create('Ext.data.Store', {
         storeId: 'scatterStore',
         fields: ['Q_Varde', 'Q_Unit'],
-        sorters: [{
-            property: 'Q_Varde',
-            direction: 'ASC'
-        }],
+        sorters: [
+            {
+                property: 'Q_Varde',
+                direction: 'ASC'
+            }
+        ],
         proxy: {
             type: 'ajax',
             localCall: true, //TODO: remove change...
@@ -34,7 +44,12 @@ Repository.Local.Methods.initialize(function(_m) {
             var loadFn = function() {
                 rankingChart.setLoading('Laddar...');
                 var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Year%20eq%20{0},Q_Month%20eq%20{1},Q_Indicator%20eq%20{2}';
-                this.proxy.url = Ext.String.format(url, year || currYear, month || currMonth, indicator);
+                this.proxy.url = Ext.String.format(
+                    url,
+                    year || currYear,
+                    month || currMonth,
+                    indicator
+                );
                 this.load();
             };
             if (this.isLoading()) {
@@ -47,11 +62,22 @@ Repository.Local.Methods.initialize(function(_m) {
         }
     });
     tipStore = Ext.create('QRegPV.TipStore', {
-        fields: ['Date', 'Q_Indicator', 'Q_Month', 'Q_Year', 'Q_Unit_0', 'Q_Varde_0', 'Q_Unit_1', 'Q_Varde_1'],
-        sorters: [{
-            property: 'Date',
-            direction: 'ASC'
-        }],
+        fields: [
+            'Date',
+            'Q_Indicator',
+            'Q_Month',
+            'Q_Year',
+            'Q_Unit_0',
+            'Q_Varde_0',
+            'Q_Unit_1',
+            'Q_Varde_1'
+        ],
+        sorters: [
+            {
+                property: 'Date',
+                direction: 'ASC'
+            }
+        ],
         sortOnLoad: false
     });
     mainStore = _m.getMainStore({
@@ -65,14 +91,21 @@ Repository.Local.Methods.initialize(function(_m) {
         },
         triggerLoadFn: true,
         filter: function(item) {
-            return item.get('Q_Month') === currMonth && item.get('Q_Year') === currYear && Ext.isArray(_m.getViewIds()) && Ext.Array.contains(_m.getViewIds(), item.get('Q_Indicator'));
+            return item.get('Q_Month') === currMonth &&
+                item.get('Q_Year') === currYear &&
+                Ext.isArray(_m.getViewIds()) &&
+                Ext.Array.contains(_m.getViewIds(), item.get('Q_Indicator'));
         },
-        sorters: [{
-            property: 'Q_Indicator',
-            direction: 'ASC'
-        }],
+        sorters: [
+            {
+                property: 'Q_Indicator',
+                direction: 'ASC'
+            }
+        ],
         viewIds: _m.getViewIds()
     });
+
+    // to remove
     checkBoxes = Ext.widget('checkboxgroup', {
         columns: 2,
         margin: '0 0 30px 0',
@@ -81,23 +114,83 @@ Repository.Local.Methods.initialize(function(_m) {
         },
         fieldLabel: 'Val av indikatorer',
         labelAlign: 'top',
-        items: Ext.Array.map(Ext.Array.sort(_m.getIndicatorType(), function(a, b) {
-            var ax = _m.getIndicatorName(a),
-                bx = _m.getIndicatorName(b);
-            return ax === bx ? 0 : ax > bx ? 1 : -1;
-        }), function(item) {
-            return {
-                boxLabel: _m.getIndicatorName(item),
-                name: 'indicators',
-                inputValue: item,
-                checked: Ext.Array.contains(_m.getViewIds(), item)
-            };
-        }),
+        items: Ext.Array.map(
+            Ext.Array.sort(_m.getIndicatorType(), function(a, b) {
+                var ax = _m.getIndicatorName(a), bx = _m.getIndicatorName(b);
+                return ax === bx ? 0 : ax > bx ? 1 : -1;
+            }),
+            function(item) {
+                return {
+                    boxLabel: _m.getIndicatorName(item),
+                    name: 'indicators',
+                    inputValue: item,
+                    checked: Ext.Array.contains(_m.getViewIds(), item)
+                };
+            }
+        ),
         listeners: {
             change: function(cb, newValue, oldValue) {
                 mainStore.clearFilter(true);
                 mainStore.filterBy(function(item) {
-                    return item.get('Q_Month') === currMonth && item.get('Q_Year') === currYear && newValue.indicators && (Ext.isArray(newValue.indicators) ? Ext.Array.contains(newValue.indicators, item.get('Q_Indicator')) : newValue.indicators === item.get('Q_Indicator'));
+                    return item.get('Q_Month') === currMonth &&
+                        item.get('Q_Year') === currYear &&
+                        newValue.indicators &&
+                        (Ext.isArray(newValue.indicators)
+                            ? Ext.Array.contains(
+                                  newValue.indicators,
+                                  item.get('Q_Indicator')
+                              )
+                            : newValue.indicators === item.get('Q_Indicator'));
+                });
+            }
+        }
+    });
+
+    indicatorSelection = Ext.create('QRegPV.IndicatorCombo',{
+        emptyText: 'Välj indikator ...',
+        store: Ext.create('Ext.data.Store', {
+            model: Ext.create('Ext.data.Model', {
+                fields: [
+                    {
+                        name: 'valueName'
+                    },
+                    {
+                        name: 'name'
+                    },
+                    { name: 'valueCode' }
+                ]
+            }),
+            data: Ext.Array.map(
+                Ext.Array.sort(_m.getIndicatorType(), function(a, b) {
+                    var ax = _m.getIndicatorName(a),
+                        bx = _m.getIndicatorName(b);
+                    return ax === bx ? 0 : ax > bx ? 1 : -1;
+                }),
+                function(item) {
+                    return {
+                        valueName: _m.getIndicatorName(item),
+                        name: 'indicators',
+                        valueCode: item
+                    };
+                }
+            )
+        }),        
+        displayField: 'valueName',
+        valueField: 'valueCode',
+        listeners: {
+            select: function(aCombo, aSelection) {
+                var newValue = aSelection.get('valueCode');
+                mainStore.clearFilter(true);
+                mainStore.filterBy(function(item) {
+                    return item.get('Q_Month') === currMonth &&
+                        item.get('Q_Year') === currYear &&
+                        newValue.indicators &&
+                        (Ext.isArray(newValue.indicators)
+                            ? Ext.Array.contains(
+                                  newValue.indicators,
+                                  item.get('Q_Indicator')
+                              )
+                            : newValue.indicators === item.get('Q_Indicator'));
                 });
             }
         }
@@ -119,7 +212,6 @@ Repository.Local.Methods.initialize(function(_m) {
         scatterStore.loadNewIndicatorData(indicator, year, month);
 
         showScatterChart(selectedItem.get('IndicatorName'));
-
     };
     rankingChart = Ext.create('Ext.chart.CartesianChart', {
         xtype: 'chart',
@@ -135,80 +227,99 @@ Repository.Local.Methods.initialize(function(_m) {
             top: 60
         },
         background: '#F7F7F9',
-        axes: [{
-            type: 'numeric',
-            position: 'left',
-            fields: ['Q_Varde'],
-            majorTickSteps: 5,
-            minimum: 0,
-            maximum: 100,
-            grid: {
-                style: {
-                    stroke: '#ccc',
-                    'stroke-dasharray': [2, 2]
-                }
-            },
-            style: {
-                strokeStyle: '#F7F7F9'
-            },
-            renderer: function(v) {
-                return Ext.util.Format.number(v, '0%');
-            }
-        }, {
-            type: 'category',
-            position: 'bottom',
-            fields: ['Q_Unit'],
-            hidden: true
-        }],
-        series: [{
-            type: 'scatter',
-            xField: 'Q_Unit',
-            yField: 'Q_Varde',
-            isThisClinic: function(record) {
-                return record.get('Q_Unit') === clinicComboPrimary.getValue();
-            },
-            marker: {
-                type: 'diamond',
-                scale: 2,
-                lineWidth: 2
-            },
-            renderer: function(sprite, config, rendererConfig, index) {
-                try {
-                    if (sprite.getStore().getAt(index).get('Q_Unit') === clinicComboPrimary.getValue()) {
-                        return {
-                            scale: 3,
-                            fill: _m.getPrimaryColor(),
-                            stroke: Ext.draw.Color.fly(_m.getPrimaryColor()).createDarker(0.1)
-                        };
-                    } else {
-                        return {
-                            scale: 2,
-                            fill: _m.getSecondaryColor(),
-                            stroke: Ext.draw.Color.fly(_m.getSecondaryColor()).createDarker(0.1)
-                        };
+        axes: [
+            {
+                type: 'numeric',
+                position: 'left',
+                fields: ['Q_Varde'],
+                majorTickSteps: 5,
+                minimum: 0,
+                maximum: 100,
+                grid: {
+                    style: {
+                        stroke: '#ccc',
+                        'stroke-dasharray': [2, 2]
                     }
-                } catch (e) {
-
+                },
+                style: {
+                    strokeStyle: '#F7F7F9'
+                },
+                renderer: function(v) {
+                    return Ext.util.Format.number(v, '0%');
                 }
             },
-            tooltip: {
-                trackMouse: true,
-                cls: 'tooltip',
-                renderer: function(storeItem, item) {
-                    this.setHtml(Ext.String.format('<b>{0}</b><br/>{1}<br/>Plats {2} av {3}',
-                        _m.getUnitName(storeItem.get('Q_Unit')),
-                        Ext.util.Format.number(storeItem.get('Q_Varde'), '0.0%'), (storeItem.store.indexOf(storeItem) + 1),
-                        storeItem.store.count()
-                    ));
-                }
-            },
-            highlight: true,
-            highlightCfg: {
-                fill: _m.getPrimaryColor(),
-                stroke: _m.getPrimaryColor(),
-                scale: 2.5
+            {
+                type: 'category',
+                position: 'bottom',
+                fields: ['Q_Unit'],
+                hidden: true
             }
-        }],
+        ],
+        series: [
+            {
+                type: 'scatter',
+                xField: 'Q_Unit',
+                yField: 'Q_Varde',
+                isThisClinic: function(record) {
+                    return record.get('Q_Unit') ===
+                        clinicComboPrimary.getValue();
+                },
+                marker: {
+                    type: 'diamond',
+                    scale: 2,
+                    lineWidth: 2
+                },
+                renderer: function(sprite, config, rendererConfig, index) {
+                    try {
+                        if (
+                            sprite.getStore().getAt(index).get('Q_Unit') ===
+                                clinicComboPrimary.getValue()
+                        ) {
+                            return {
+                                scale: 3,
+                                fill: _m.getPrimaryColor(),
+                                stroke: Ext.draw.Color
+                                    .fly(_m.getPrimaryColor())
+                                    .createDarker(0.1)
+                            };
+                        } else {
+                            return {
+                                scale: 2,
+                                fill: _m.getSecondaryColor(),
+                                stroke: Ext.draw.Color
+                                    .fly(_m.getSecondaryColor())
+                                    .createDarker(0.1)
+                            };
+                        }
+                    } catch (e) {
+                    }
+                },
+                tooltip: {
+                    trackMouse: true,
+                    cls: 'tooltip',
+                    renderer: function(storeItem, item) {
+                        this.setHtml(
+                            Ext.String.format(
+                                '<b>{0}</b><br/>{1}<br/>Plats {2} av {3}',
+                                _m.getUnitName(storeItem.get('Q_Unit')),
+                                Ext.util.Format.number(
+                                    storeItem.get('Q_Varde'),
+                                    '0.0%'
+                                ),
+                                storeItem.store.indexOf(storeItem) + 1,
+                                storeItem.store.count()
+                            )
+                        );
+                    }
+                },
+                highlight: true,
+                highlightCfg: {
+                    fill: _m.getPrimaryColor(),
+                    stroke: _m.getPrimaryColor(),
+                    scale: 2.5
+                }
+            }
+        ],
         listeners: {
             boxready: function() {
                 window.scrollToTop(rankingChartContainer.getY());
@@ -244,103 +355,108 @@ Repository.Local.Methods.initialize(function(_m) {
         legend: {
             docked: 'bottom'
         },
-        axes: [{
-            type: 'numeric',
-            position: 'left',
-            style: {
-                strokeStyle: '#fff'
-            },
-            minimum: 0,
-            renderer: Ext.util.Format.numberRenderer('0%'),
-            dashSize: 0,
-            grid: true
-        }, {
-            type: 'category',
-            position: 'bottom',
-            style: {
-                strokeStyle: '#ddd'
-            },
-            label: {
-                rotate: {
-                    degrees: -45
-                },
-                fontSize: 11
-            },
-            labelRows: 2,
-            hideOverlappingLabels: false
-        }],
-        series: [{
-            type: 'line',
-            stacked: false,
-            cls: 'testcls',
-            renderer: function(sprite, config) {
-                var field = sprite.getField();
-                if (field === 'Q_Varde_0') {
-                    return {
-                        x: config.x + 8
-                    };
-                } else if (field === 'Q_Varde_1') {
-                    return {
-                        x: config.x - 8
-                    };
-                }
-            },
-            axis: 'left',
-            xField: 'IndicatorName',
-            yField: ['Q_Varde_0', 'Q_Varde_1'],
-            // highlightCfg: {
-            //     cursor: 'pointer',
-            //     opacity: 0.75,
-            //     shadow: false,
-            //     animate: false
-            // },
-            label: {
-                display: 'insideEnd',
-                hidden: true,
-                fontSize: 9,
-                field: ['Q_Namnare_0', 'Q_Namnare_1'],
-                contrast: true,
-                rotate: {
-                    degrees: 45
-                },
-                renderer: function(v) {
-                    return typeof v === 'number' ? ('n=' + Ext.util.Format.number(v, '0,000')) : '';
-                }
-            },
-            tooltip: {
+        axes: [
+            {
+                type: 'numeric',
+                position: 'left',
                 style: {
-                    background: '#fff'
+                    strokeStyle: '#fff'
                 },
-                trackMouse: true,
-                layout: 'fit',
-                items: {
-                    xtype: 'container',
-                    layout: 'vbox',
-                    items: [tipChart]
-                }
+                minimum: 0,
+                renderer: Ext.util.Format.numberRenderer('0%'),
+                dashSize: 0,
+                grid: true
             },
-            listeners: {
-                itemmouseover: function(series, item) {
-                    var record = item.record,
-                        indicator = record.get('Q_Indicator');
-                    if (tipStore.getLastLoadedIndicator() !== indicator) {
-                        tipStore.clearFilter(true);
-                        tipStore.filterBy(function(item2) {
-                            return indicator === item2.get('Q_Indicator');
-                        });
-                        tipStore.sort();
-                        tipStore.setLastLoadedIndicator(indicator);
+            {
+                type: 'category',
+                position: 'bottom',
+                style: {
+                    strokeStyle: '#ddd'
+                },
+                label: {
+                    rotate: {
+                        degrees: -45
+                    },
+                    fontSize: 11
+                },
+                labelRows: 2,
+                hideOverlappingLabels: false
+            }
+        ],
+        series: [
+            {
+                type: 'line',
+                stacked: false,
+                cls: 'testcls',
+                renderer: function(sprite, config) {
+                    var field = sprite.getField();
+                    if (field === 'Q_Varde_0') {
+                        return {
+                            x: config.x + 8
+                        };
+                    } else if (field === 'Q_Varde_1') {
+                        return {
+                            x: config.x - 8
+                        };
                     }
                 },
-                itemmouseup: loadScatterChart
+                axis: 'left',
+                xField: 'IndicatorName',
+                yField: ['Q_Varde_0', 'Q_Varde_1'],
+                // highlightCfg: {
+                //     cursor: 'pointer',
+                //     opacity: 0.75,
+                //     shadow: false,
+                //     animate: false
+                // },
+                label: {
+                    display: 'insideEnd',
+                    hidden: true,
+                    fontSize: 9,
+                    field: ['Q_Namnare_0', 'Q_Namnare_1'],
+                    contrast: true,
+                    rotate: {
+                        degrees: 45
+                    },
+                    renderer: function(v) {
+                        return typeof v === 'number'
+                            ? 'n=' + Ext.util.Format.number(v, '0,000')
+                            : '';
+                    }
+                },
+                tooltip: {
+                    style: {
+                        background: '#fff'
+                    },
+                    trackMouse: true,
+                    layout: 'fit',
+                    items: {
+                        xtype: 'container',
+                        layout: 'vbox',
+                        items: [tipChart]
+                    }
+                },
+                listeners: {
+                    itemmouseover: function(series, item) {
+                        var record = item.record,
+                            indicator = record.get('Q_Indicator');
+                        if (tipStore.getLastLoadedIndicator() !== indicator) {
+                            tipStore.clearFilter(true);
+                            tipStore.filterBy(function(item2) {
+                                return indicator === item2.get('Q_Indicator');
+                            });
+                            tipStore.sort();
+                            tipStore.setLastLoadedIndicator(indicator);
+                        }
+                    },
+                    itemmouseup: loadScatterChart
+                }
             }
-        }]
+        ]
     });
     //Init clinic comboboxes
     clinicChangeFn = function() {
-        var bar = mainChart.getSeries()[0],
-            val = this.getValue(),
-            titles;
+        var bar = mainChart.getSeries()[0], val = this.getValue(), titles;
 
         tipStore.clearLastLoadedIndicator();
         if (!Ext.isArray(bar.getTitle())) {
@@ -370,7 +486,8 @@ Repository.Local.Methods.initialize(function(_m) {
             type: 'vbox',
             align: 'stretch'
         },
-        items: [{
+        items: [
+            {
                 xtype: 'checkboxgroup',
                 margin: '0 0 25px 0',
                 defaults: {
@@ -379,31 +496,36 @@ Repository.Local.Methods.initialize(function(_m) {
                 fieldLabel: 'Inställningar',
                 labelAlign: 'top',
                 columns: 2,
-                items: [{
-                    boxLabel: 'Visa nämnare i staplar',
-                    listeners: {
-                        change: function(checkbox, newValue) {
-                            var mainChartSeries;
-                            try {
-                                mainChartSeries = mainChart.getSeries()[0];
-                                if (newValue) {
-                                    mainChartSeries.setLabel({
-                                        hidden: false
-                                    });
-                                } else {
-                                    mainChartSeries.setLabel({
-                                        hidden: true
-                                    });
+                items: [
+                    {
+                        boxLabel: 'Visa nämnare i staplar',
+                        listeners: {
+                            change: function(checkbox, newValue) {
+                                var mainChartSeries;
+                                try {
+                                    mainChartSeries = mainChart.getSeries()[0];
+                                    if (newValue) {
+                                        mainChartSeries.setLabel({
+                                            hidden: false
+                                        });
+                                    } else {
+                                        mainChartSeries.setLabel({
+                                            hidden: true
+                                        });
+                                    }
+                                    mainChart.redraw();
+                                } catch (e) {
+                                    Ext.log('Failed to enable labels', e);
                                 }
-                                mainChart.redraw();
-                            } catch (e) {
-                                Ext.log('Failed to enable labels', e);
                             }
                         }
                     }
-                }]
+                ]
             },
-            checkBoxes, clinicComboPrimary, clinicComboSecondary
+            checkBoxes,
+            indicatorSelection,
+            clinicComboPrimary,
+            clinicComboSecondary
         ]
     });
     Ext.create('Ext.container.Container', {
@@ -412,9 +534,14 @@ Repository.Local.Methods.initialize(function(_m) {
             type: 'vbox',
             align: 'stretch'
         },
-        items: [configContainer, Ext.create('QRegPV.CountView', {
-            hypertoni: _m.isHypertoni()
-        }), mainChart, rankingChartContainer]
+        items: [
+            configContainer,
+            Ext.create('QRegPV.CountView', {
+                hypertoni: _m.isHypertoni()
+            }),
+            mainChart,
+            rankingChartContainer
+        ]
     });
 
     scatterStore.on('datachanged', function(store) {
@@ -429,6 +556,5 @@ Repository.Local.Methods.initialize(function(_m) {
             window.scrollToTop(rankingChartContainer.getY());
         }
     }
-
 });
 //# sourceURL=QRegPV/Overview

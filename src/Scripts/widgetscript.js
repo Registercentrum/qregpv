@@ -544,6 +544,21 @@
                 }
                 return mainStore;
             },
+            getOverTimeStore: function(conf) {
+                var me = this,
+                    mainStore = this.getMainStore(conf),
+                    overTimeStore = Ext.StoreManager.lookup(
+                        'QRegPV.OverTimeStore'
+                    ),
+                    init = false;
+                if (!overTimeStore) {
+                    init = true;
+                    overTimeStore = Ext.create('Ext.data.ChainedStore', {
+                        source: mainStore,
+                        groupField: 'Q_Indicator'
+                    });
+                }
+            },
             loadCountData: function(HSAID, year, month) {
                 if (this.getLocal()._countStoreHyp) {
                     this
@@ -1032,67 +1047,14 @@
                             });
                         }
                     });
-                !Ext.ClassManager.isCreated('QRegPV.ClinicCombo') &&
-                    Ext.define('QRegPV.ClinicCombo', {
+
+                !Ext.ClassManager.isCreated('QRegPV.BaseIndicatorCombo') &&
+                    Ext.define('QRegPV.BaseIndicatorCombo', {
                         extend: 'Ext.form.field.ComboBox',
-                        alias: 'widget.qregcliniccombo',
-                        hideTrigger: true,
-                        // height: 48,
-                        initComponent: function() {
-                            var me = this;
-                            Ext.apply(me, {
-                                _singleListeners: {},
-                                store: (
-                                    'QregPVUnitStore' +
-                                        (me.isPrimary ? '' : 'Secondary')
-                                ),
-                                fieldStyle: {
-                                    'background-color': '#FFF !important',
-                                    'font-size': '15px',
-                                    height: '32px',
-                                    // 'border-width': '1px 1px 1px 5px',
-                                    'border-left-width': '5px',
-                                    'border-color': '#ccc',
-                                    'border-style': 'solid',
-                                    'border-left-color': (
-                                        me.isPrimary
-                                            ? repo.getPrimaryColor()
-                                            : repo.getSecondaryColor()
-                                    ),
-                                    // 'border-radius': '5px',
-                                    // 'margin-top': '4px',
-                                    padding: '5px'
-                                },
-                                value: (
-                                    me.isPrimary
-                                        ? repo.getPrimaryUnit()
-                                        : repo.getSecondaryUnit()
-                                ),
-                                fieldLabel: (
-                                    me.fieldLabel ||
-                                        (me.isPrimary
-                                            ? 'Välj primär vårdcentral'
-                                            : 'Välj vårdcentral för jämförelse')
-                                ),
-                                columnDataIndex: (
-                                    me.isPrimary ? 'Q_Varde_0' : 'Q_Varde_1'
-                                )
-                            });
-                            // me.addEvents('storeLoad');
-                            me.callParent(arguments);
-                        },
+                        alias: 'widget.qregbasecombo',
                         flex: 1,
                         editable: true,
-                        msgTarget: 'side',
-                        displayField: 'UnitName',
-                        afterBodyEl: '<span style="position: absolute;right: 9px;top: 30px; font-size: 18px; font-family: fontawesome; color: #DADADA; pointer-events: none;">&#xf002;</span>',
-                        valueField: 'UnitID',
-                        fieldBodyCls: 'qregpv-clinic-input',
-                        typeAhead: true,
-                        anyMatch: true,
-                        forceSelection: true,
                         sendEmptyText: false,
-                        emptyText: 'Sök efter en vårdcentral...',
                         checkChangeEvents: ['change', 'keyup'], //Stratum specific fix
                         autoRender: true,
                         selectOnFocus: true,
@@ -1101,6 +1063,99 @@
                             border: false
                         },
                         queryMode: 'local',
+                        labelAlign: 'top',
+                        margin: '0 0 20px 0',
+                        labelCls: 'qreg-config-label',
+                        hideTrigger: true,
+                        fieldBodyCls: 'qregpv-clinic-input',
+                        fieldStyle: {
+                            'background-color': '#FFF !important',
+                            'font-size': '15px',
+                            height: '32px',
+                            // 'border-width': '1px 1px 1px 5px',
+                            'border-left-width': '5px',
+                            'border-color': '#ccc',
+                            'border-style': 'solid',
+                            padding: '5px'
+                        },
+                        typeAhead: true,
+                        anyMatch: true,
+                        forceSelection: true,
+                        msgTarget: 'side',
+                        afterBodyEl: '<span style="position: absolute;right: 9px;top: 30px; font-size: 18px; font-family: fontawesome; color: #DADADA; pointer-events: none;">&#xf002;</span>',
+                        listeners: {
+                            focus: function() {
+                                this.expand();
+                            }
+                        }
+                    });
+
+                !Ext.ClassManager.isCreated('QRegPV.IndicatorCombo') &&
+                    Ext.define('QRegPV.IndicatorCombo', {
+                        extend: 'QRegPV.BaseIndicatorCombo',
+                        alias: 'widget.qregindicatorcombo'
+                    });
+
+                !Ext.ClassManager.isCreated('QRegPV.ClinicCombo') &&
+                    Ext.define('QRegPV.ClinicCombo', {
+                        extend: 'QRegPV.BaseIndicatorCombo',
+                        alias: 'widget.qregcliniccombo',
+                        // height: 48,
+                        config: {
+                            isPrimary: false
+                        },
+                        initComponent: function() {
+                            var me = this;
+                            Ext.Object.merge(me, {
+                                _singleListeners: {}                                
+                            });
+                            // me.addEvents('storeLoad');
+                            me.callParent(arguments);
+                        },
+                        applyIsPrimary: function(newValue, oldvalue) {
+                            var store = Ext.data.StoreManager.lookup(
+                                    'QregPVUnitStore' +
+                                        (newValue ? '' : 'Secondary')
+                                );
+                            this.store = store;
+
+                            Ext.Object.merge(this, {
+                                store: Ext.data.StoreManager.lookup(
+                                    'QregPVUnitStore' +
+                                        (newValue ? '' : 'Secondary')
+                                ),
+                                value: (
+                                    newValue
+                                        ? repo.getPrimaryUnit()
+                                        : repo.getSecondaryUnit()
+                                ),
+                                fieldStyle: {
+                                    'border-left-color': (
+                                        newValue
+                                            ? repo.getPrimaryColor()
+                                            : repo.getSecondaryColor()
+                                    )
+                                },
+                                fieldLabel: (
+                                    this.fieldLabel ||
+                                        (newValue
+                                            ? 'Välj primär vårdcentral'
+                                            : 'Välj vårdcentral för jämförelse')
+                                ),
+                                columnDataIndex: (
+                                    newValue ? 'Q_Varde_0' : 'Q_Varde_1'
+                                )
+                            });
+
+                            console.log('in the apply', this);
+                            return newValue;
+                        },
+                        constructor: function(config) {
+                            this.callParent([config]);
+                        },
+                        displayField: 'UnitName',
+                        valueField: 'UnitID',
+                        emptyText: 'Sök efter en vårdcentral...',
                         listeners: {
                             select: function(cb, records) {
                                 var me = this, unitId;
@@ -1149,14 +1204,8 @@
                                     },
                                     100
                                 );
-                            },
-                            focus: function() {
-                                this.expand();
                             }
                         },
-                        labelAlign: 'top',
-                        margin: '0 0 20px 0',
-                        labelCls: 'qreg-config-label',
                         addSingleListener: function(event, eventFn) {
                             if (this._singleListeners[event]) {
                                 this.un(event, this._singleListeners[event]);
