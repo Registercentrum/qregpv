@@ -80,13 +80,14 @@ Repository.Local.Methods.initialize(function(_m) {
         ],
         sortOnLoad: false
     });
-    mainStore = _m.getMainStore({
+    mainStore = _m.getOverTimeStore({
         beforeLoadFn: function() {
             mainChart && mainChart.setLoading('Laddar...');
         },
         onLoadFn: function(store, records) {
             mainChart && mainChart.setLoading(false);
             tipStore.clearFilter(true);
+            console.log(records);
             tipStore.loadData(records, false);
         },
         triggerLoadFn: true,
@@ -522,7 +523,6 @@ Repository.Local.Methods.initialize(function(_m) {
                     }
                 ]
             },
-            checkBoxes,
             indicatorSelection,
             clinicComboPrimary,
             clinicComboSecondary

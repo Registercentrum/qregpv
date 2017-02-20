@@ -549,15 +549,20 @@
                     mainStore = this.getMainStore(conf),
                     overTimeStore = Ext.StoreManager.lookup(
                         'QRegPV.OverTimeStore'
-                    ),
-                    init = false;
+                    );
                 if (!overTimeStore) {
-                    init = true;
                     overTimeStore = Ext.create('Ext.data.ChainedStore', {
                         source: mainStore,
-                        groupField: 'Q_Indicator'
+                        groupField: 'Q_Indicator',
+                        sorters: [
+                            {
+                                property: 'Date',
+                                direction: 'ASC'
+                            }
+                        ]
                     });
                 }
+                return overTimeStore;
             },
             loadCountData: function(HSAID, year, month) {
                 if (this.getLocal()._countStoreHyp) {
