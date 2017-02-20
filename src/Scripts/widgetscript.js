@@ -604,10 +604,10 @@
                 }).show();
             },
             /**
-     * CSS to style the config-panel
-     * A bit excessive for use with the inline stylesheet creation..
-     * Should preferably be handled in a component specific css file, part of the theme
-     */
+             * CSS to style the config-panel
+             * A bit excessive for use with the inline stylesheet creation..
+             * Should preferably be handled in a component specific css file, part of the theme
+             */
             _initConfigPanelCSS: function() {
                 if (!this._initConfigPanelCSS.initialized) {
                     Ext.util.CSS.createStyleSheet(
@@ -876,8 +876,8 @@
                     });
 
                 /**
-         * Defines a standard look for the charts visible in tooltips.
-         */
+                 * Defines a standard look for the charts visible in tooltips.
+                 */
                 !Ext.ClassManager.isCreated('QRegPV.TipChart') &&
                     Ext.define('QRegPV.TipChart', {
                         extend: 'Ext.chart.Chart',
@@ -1068,15 +1068,21 @@
                         labelCls: 'qreg-config-label',
                         hideTrigger: true,
                         fieldBodyCls: 'qregpv-clinic-input',
-                        fieldStyle: {
-                            'background-color': '#FFF !important',
-                            'font-size': '15px',
-                            height: '32px',
-                            // 'border-width': '1px 1px 1px 5px',
-                            'border-left-width': '5px',
-                            'border-color': '#ccc',
-                            'border-style': 'solid',
-                            padding: '5px'
+                        fieldLabel: '',
+                        constructor: function(config) {
+                            config = Ext.merge(config, {
+                                fieldStyle: {
+                                    'background-color': '#FFF !important',
+                                    'font-size': '15px',
+                                    height: '32px',
+                                    // 'border-width': '1px 1px 1px 5px',
+                                    'border-left-width': '5px',
+                                    'border-color': '#ccc',
+                                    'border-style': 'solid',
+                                    padding: '5px'
+                                }
+                            });
+                            this.callParent([config]);
                         },
                         typeAhead: true,
                         anyMatch: true,
@@ -1093,7 +1099,11 @@
                 !Ext.ClassManager.isCreated('QRegPV.IndicatorCombo') &&
                     Ext.define('QRegPV.IndicatorCombo', {
                         extend: 'QRegPV.BaseIndicatorCombo',
-                        alias: 'widget.qregindicatorcombo'
+                        alias: 'widget.qregindicatorcombo',
+                        fieldLabel: 'Välj Indikator',
+                        constructor: function(config) {
+                            this.callParent([config]);
+                        }
                     });
 
                 !Ext.ClassManager.isCreated('QRegPV.ClinicCombo') &&
@@ -1104,19 +1114,20 @@
                         config: {
                             isPrimary: false
                         },
-                        initComponent: function() {
-                            var me = this;
-                            Ext.Object.merge(me, {
-                                _singleListeners: {}                                
-                            });
-                            // me.addEvents('storeLoad');
-                            me.callParent(arguments);
-                        },
+                        _singleListeners: {},
+                        // initComponent: function () {
+                        //     var me = this;
+                        //     Ext.Object.merge(me, {
+                        //         _singleListeners: {}
+                        //     });
+                        //     // me.addEvents('storeLoad');
+                        //     me.callParent(arguments);
+                        // },
                         applyIsPrimary: function(newValue, oldvalue) {
                             var store = Ext.data.StoreManager.lookup(
-                                    'QregPVUnitStore' +
-                                        (newValue ? '' : 'Secondary')
-                                );
+                                'QregPVUnitStore' +
+                                    (newValue ? '' : 'Secondary')
+                            );
                             this.store = store;
 
                             Ext.Object.merge(this, {
@@ -1146,8 +1157,6 @@
                                     newValue ? 'Q_Varde_0' : 'Q_Varde_1'
                                 )
                             });
-
-                            console.log('in the apply', this);
                             return newValue;
                         },
                         constructor: function(config) {
