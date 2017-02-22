@@ -4,7 +4,7 @@
             initialize: function(callbackFn) {
                 var me = this,
                     collectionDate = Ext.fly('data-collection-date'),
-                    __qregPVSettings = window.__qregPVSettings || null;
+                    __qregPVSettings = window.__qregPVSettings || null; // getglobalSettingsObject defined under htmlmarkup
                 // collectionDate && collectionDate.setHtml(Ext.Date.format(new Date(), 'Y-m-d'));
                 if (typeof Profile !== 'undefined') {
                     Profile.APIKey = 'Hoe8m0raiO4=';
@@ -544,26 +544,6 @@
                 }
                 return mainStore;
             },
-            getOverTimeStore: function(conf) {
-                var me = this,
-                    mainStore = this.getMainStore(conf),
-                    overTimeStore = Ext.StoreManager.lookup(
-                        'QRegPV.OverTimeStore'
-                    );
-                if (!overTimeStore) {
-                    overTimeStore = Ext.create('Ext.data.ChainedStore', {
-                        source: mainStore,
-                        groupField: 'Q_Indicator',
-                        sorters: [
-                            {
-                                property: 'Date',
-                                direction: 'ASC'
-                            }
-                        ]
-                    });
-                }
-                return overTimeStore;
-            },
             loadCountData: function(HSAID, year, month) {
                 if (this.getLocal()._countStoreHyp) {
                     this
@@ -652,7 +632,8 @@
                 return {
                     colors: ['#B39C85', '#FF5335'],
                     indicatorType: '10',
-                    viewIds: ['1001', '1004', '1003', '1005', '1006']
+                    viewIds: ['1001', '1004', '1003', '1005', '1006'],
+                    selectedIndicator: '1001'
                 };
             },
             getHSAID: function() {
@@ -688,6 +669,12 @@
             },
             getViewIds: function() {
                 return this.qregPVSettings.viewIds;
+            },
+            getCurrentId: function() {
+                return this.qregPVSettings.selectedIndicator || this.qregPVSettings.viewIds[0];
+            },
+            getViewIdFirstOrDefault: function () {
+                return this.qregPVSettings.viewId && this.qregPVSettings.viewIds[0];
             },
             _getAlphaColor: function(color, alpha) {
                 var aColor = Ext.draw.Color.fly(color);
