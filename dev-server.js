@@ -6,8 +6,10 @@ const port = process.env.DEV_PORT || 3005;
 const baseUrl = '';
 
 const codeToNameMap = {
-    1867: 'HypOverview',
-    1899: 'HypOverTime'
+    1867: 'Hyp-Overview',
+    1801: 'Hyp-OverTime',
+    1869: 'Kranskarls-Overview',
+    1802: 'Kranskarls-OverTime'
 }
 
 app.use(function(req, res, next) {
@@ -28,8 +30,9 @@ app.get('/devapi/pages/:pageId', function (req, res) {
     fs.readFile(`src/views/${pageName}.html`, 'utf-8', function (err, htmlFile) {
         if (err)
             return res.status(401).end(err);
+        let jsFileName = pageName.split('-')[1];
 
-        fs.readFile(`src/views/${pageName}.js`, 'utf-8', function (err, jsFile) {
+        fs.readFile(`src/views/${jsFileName}.js`, 'utf-8', function (err, jsFile) {
             if (err)
                 return res.status(401).end(err.message);
             const result = `${htmlFile}<script>${jsFile}</script>`;
