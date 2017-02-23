@@ -8,25 +8,27 @@ Repository.Local.Methods.initialize(function(_m) {
         configContainer,
         mainStore,
         clinicChangeFn,
-        mainStore = _m.getMainStore({
-            beforeLoadFn: function() {
-                mainChart && mainChart.setLoading('Laddar...');
-            },
-            onLoadFn: function(store, records) {
-                mainChart && mainChart.setLoading(false);
-            },
-            triggerLoadFn: true,
-            filter: function(item) {
-                return item.get('Q_Year') > startYear &&
-                    _m.getCurrentId() === item.get('Q_Indicator');
-            },
-            sorters: [
-                {
-                    property: 'Date',
-                    direction: 'ASC'
-                }
-            ]
-        });
+        dataTable;
+
+    mainStore = _m.getMainStore({
+        beforeLoadFn: function() {
+            mainChart && mainChart.setLoading('Laddar...');
+        },
+        onLoadFn: function(store, records) {
+            mainChart && mainChart.setLoading(false);
+        },
+        triggerLoadFn: true,
+        filter: function(item) {
+            return item.get('Q_Year') > startYear &&
+                _m.getCurrentId() === item.get('Q_Indicator');
+        },
+        sorters: [
+            {
+                property: 'Date',
+                direction: 'ASC'
+            }
+        ]
+    });
 
     indicatorSelection = Ext.create('QRegPV.IndicatorCombo', {
         emptyText: 'Välj indikator ...',
@@ -66,6 +68,10 @@ Repository.Local.Methods.initialize(function(_m) {
                     return item.get('Q_Year') > startYear &&
                         newValue === item.get('Q_Indicator');
                 });
+                var indicatorName = _m.getIndicatorName(newValue);
+                dataTable.setTitle(indicatorName);
+                mainChart.setTitle(indicatorName);
+                dataTable.doLayout();
             }
         }
     });
@@ -110,10 +116,7 @@ Repository.Local.Methods.initialize(function(_m) {
                     },
                     fontSize: 11
                 },
-                segmenter: Ext.create('segmenter.time'),
-                fields: ['Date'],
-                labelRows: 2,
-                hideOverlappingLabels: false
+                fields: ['Date']
             }
         ],
         series: [
@@ -180,6 +183,36 @@ Repository.Local.Methods.initialize(function(_m) {
         ]
     });
 
+    dataTable = Ext.create('Ext.grid.Panel', {
+        title: _m.getIndicatorName(_m.getCurrentId()),
+        store: Ext.create('Ext.data.ChainedStore', {
+            source: Ext.StoreManager.lookup('QRegPV.MainStore'),
+            sorters: [ { property: 'Date',  direction: 'DESC' }]
+        }),
+        columns: [
+            {
+                text: 'Datum',
+                dataIndex: 'Date',
+                flex: 2,
+                renderer: function(value) {
+                    return Ext.Date.format(value, 'Y / F');
+                }
+            },
+            { text: 'År', dataIndex: 'Q_Year', flex: 1, sortable: false },
+            {
+                text: 'Månad',
+                dataIndex: 'Q_Month',
+                flex: 1,
+                sortable: false,
+                renderer: function(value) {
+                    return Ext.Date.monthNames[value - 1];
+                }
+            },
+            { text: 'Andel', dataIndex: 'Q_Varde_0', flex: 1 }
+        ],
+        width: 400
+    });
+
     //Init clinic comboboxes
     clinicChangeFn = function() {
         var series = mainChart.getSeries()[this.isPrimary ? 0 : 1],
@@ -197,6 +230,7 @@ Repository.Local.Methods.initialize(function(_m) {
             titles = this.getRawValue();
             series.setTitle(titles);
         }
+        dataTable && dataTable.updateLayout();
     };
 
     clinicComboPrimary.addSingleListener('select', clinicChangeFn);
@@ -212,11 +246,7 @@ Repository.Local.Methods.initialize(function(_m) {
             type: 'vbox',
             align: 'stretch'
         },
-        items: [
-            indicatorSelection,
-            clinicComboPrimary,
-            clinicComboSecondary
-        ]
+        items: [indicatorSelection, clinicComboPrimary, clinicComboSecondary]
     });
     Ext.create('Ext.container.Container', {
         renderTo: 'main-container',
@@ -229,7 +259,8 @@ Repository.Local.Methods.initialize(function(_m) {
             Ext.create('QRegPV.CountView', {
                 hypertoni: _m.isHypertoni()
             }),
-            mainChart
+            mainChart,
+            dataTable
         ]
     });
 });
