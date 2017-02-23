@@ -363,7 +363,7 @@ Repository.Local.Methods.initialize(function(_m) {
     clinicChangeFn.call(clinicComboPrimary);
     clinicChangeFn.call(clinicComboSecondary);
     mainChart.refreshLegendStore();
-
+    mainStore.loadNewUnitData();
     configContainer = Ext.create('QRegPV.ConfigContainer', {
         margin: '0 0 20px 0',
         layout: {

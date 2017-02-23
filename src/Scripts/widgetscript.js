@@ -380,62 +380,13 @@
             },
             getMainStore: function(conf) {
                 var me = this,
-                    startDate,
                     mainStore = Ext.StoreManager.lookup('QRegPV.MainStore'),
                     first = false;
                 if (!mainStore) {
-                    startDate = Ext.Date.format(
-                        Ext.Date.add(me.getCurrentDate(), Ext.Date.YEAR, -1),
-                        'Y-m-d'
-                    );
                     first = true;
                     mainStore = Ext.create('Ext.data.Store', {
                         storeId: 'QRegPV.MainStore',
-                        fields: [
-                            {
-                                name: 'Q_Indicator',
-                                type: 'string'
-                            },
-                            {
-                                name: 'Date',
-                                convert: function(v, r) {
-                                    return Ext.Date.parse(
-                                        r.get('Q_Year') +
-                                            '-' +
-                                            r.get('Q_Month'),
-                                        'Y-n'
-                                    );
-                                }
-                            },
-                            {
-                                name: 'IndicatorName',
-                                convert: function(v, record) {
-                                    return me.getIndicatorName(
-                                        record.get('Q_Indicator')
-                                    );
-                                }
-                            },
-                            {
-                                name: 'Q_Month',
-                                type: 'number'
-                            },
-                            {
-                                name: 'Q_Year',
-                                type: 'number'
-                            },
-                            'Q_Unit_0',
-                            {
-                                name: 'Q_Varde_0',
-                                type: 'number'
-                            },
-                            'Q_Unit_1',
-                            {
-                                name: 'Q_Varde_1',
-                                type: 'number'
-                            },
-                            'Q_Namnare_0',
-                            'Q_Namnare_1'
-                        ],
+                        model: 'qRegMainModel',
                         proxy: {
                             // url: '../src/json/twounit.json',
                             type: 'ajax',
@@ -450,16 +401,24 @@
                                 ]
                             }
                         },
-                        loadNewUnitData: function(
-                            firstHSAID,
-                            secondHSAID,
-                            skipLoad
-                        ) {
-                            var loadFn = function() {
+                        // todo, call this method on widjet sitch? and set defaults here?
+                        loadNewUnitData: function(skipLoad) {
+                            var firstHSAID = me.getPrimaryUnit(),
+                                secondHSAID = me.getSecondaryUnit();
+                                var offSet = me.qregPVSettings.offsetStartDate || -1;
+                            var startDate = Ext.Date.format(
+                                Ext.Date.add(
+                                    me.getCurrentDate(),
+                                    Ext.Date.YEAR,
+                                    offSet
+                                ),
+                                'Y-m-d'
+                            );
+                            var loadFn = function() {                                                            
                                 var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Date%20gt%20' +
                                     startDate +
                                     ',Q_Unit%20in%20{0}|{1}';
-                                var filters;
+                                // var filters;
                                 Ext.isFunction(this.beforeLoadFn) &&
                                     this.beforeLoadFn.call(this);
 
@@ -472,7 +431,7 @@
                                 this.proxy.reader.setSecondUnit(secondHSAID);
 
                                 if (!skipLoad) {
-                                    filters = this.getFilters();
+                                    //filters = this.getFilters();
                                     this.clearFilter(true); //Needed since extjs 5 does not remove filtered records.
                                     // this.setFilters(filters);
                                     // console.log(filters);
@@ -500,10 +459,7 @@
                             }
                         }
                     });
-                    mainStore.loadNewUnitData(
-                        me.getPrimaryUnit(),
-                        me.getSecondaryUnit()
-                    );
+                    mainStore.loadNewUnitData();
                 }
                 // Initialize view specific config
                 if (Ext.isObject(conf)) {
@@ -553,40 +509,42 @@
             },
             createPrimaryUnitInitilizer: function(callbackFn) {
                 var me = this;
-                Ext.create('Ext.window.Window', {
-                    // renderTo: Ext.getBody(),
-                    width: 500,
-                    // height: 300,
-                    layout: 'vbox',
-                    bodyPadding: 10,
-                    glyph: 0xf013,
-                    items: [
-                        Ext.create('QRegPV.ClinicCombo', {
-                            isPrimary: true,
-                            width: '100%',
-                            fieldLabel: 'Välj din vårdcentral',
-                            skipStoreLoad: true
-                        })
-                    ],
-                    y: 200,
-                    resizable: false,
-                    modal: true,
-                    buttons: [
-                        {
-                            text: 'Avbryt',
-                            handler: function() {
-                                var parentWin = this.up('window', 2);
-                                parentWin && parentWin.close();
+                Ext
+                    .create('Ext.window.Window', {
+                        // renderTo: Ext.getBody(),
+                        width: 500,
+                        // height: 300,
+                        layout: 'vbox',
+                        bodyPadding: 10,
+                        glyph: 0xf013,
+                        items: [
+                            Ext.create('QRegPV.ClinicCombo', {
+                                isPrimary: true,
+                                width: '100%',
+                                fieldLabel: 'Välj din vårdcentral',
+                                skipStoreLoad: true
+                            })
+                        ],
+                        y: 200,
+                        resizable: false,
+                        modal: true,
+                        buttons: [
+                            {
+                                text: 'Avbryt',
+                                handler: function() {
+                                    var parentWin = this.up('window', 2);
+                                    parentWin && parentWin.close();
+                                }
+                            }
+                        ],
+                        listeners: {
+                            close: function() {
+                                callbackFn();
+                                this.destroy();
                             }
                         }
-                    ],
-                    listeners: {
-                        close: function() {
-                            callbackFn();
-                            this.destroy();
-                        }
-                    }
-                }).show();
+                    })
+                    .show();
             },
             /**
              * CSS to style the config-panel
@@ -671,10 +629,12 @@
                 return this.qregPVSettings.viewIds;
             },
             getCurrentId: function() {
-                return this.qregPVSettings.selectedIndicator || this.qregPVSettings.viewIds[0];
+                return this.qregPVSettings.selectedIndicator ||
+                    this.qregPVSettings.viewIds[0];
             },
-            getViewIdFirstOrDefault: function () {
-                return this.qregPVSettings.viewId && this.qregPVSettings.viewIds[0];
+            getViewIdFirstOrDefault: function() {
+                return this.qregPVSettings.viewId &&
+                    this.qregPVSettings.viewIds[0];
             },
             _getAlphaColor: function(color, alpha) {
                 var aColor = Ext.draw.Color.fly(color);
@@ -842,6 +802,53 @@
                         '.qreg-count-row .qreg-count-desc {font-size: 10px;}' +
                         '.qreg-count-row.x-view-item-focused { outline: 0 !important; }'
                 );
+
+                Ext.define('qRegMainModel', {
+                    extend: 'Ext.data.Model',
+                    fields: [
+                        {
+                            name: 'Q_Indicator',
+                            type: 'string'
+                        },
+                        {
+                            name: 'Date',
+                            convert: function(v, r) {
+                                return Ext.Date.parse(
+                                    r.get('Q_Year') + '-' + r.get('Q_Month'),
+                                    'Y-n'
+                                );
+                            }
+                        },
+                        {
+                            name: 'IndicatorName',
+                            convert: function(v, record) {
+                                return repo.getIndicatorName(
+                                    record.get('Q_Indicator')
+                                );
+                            }
+                        },
+                        {
+                            name: 'Q_Month',
+                            type: 'number'
+                        },
+                        {
+                            name: 'Q_Year',
+                            type: 'number'
+                        },
+                        'Q_Unit_0',
+                        {
+                            name: 'Q_Varde_0',
+                            type: 'number'
+                        },
+                        'Q_Unit_1',
+                        {
+                            name: 'Q_Varde_1',
+                            type: 'number'
+                        },
+                        'Q_Namnare_0',
+                        'Q_Namnare_1'
+                    ]
+                });
 
                 !Ext.ClassManager.isCreated('QRegPV.TipStore') &&
                     Ext.define('QRegPV.TipStore', {
@@ -1115,7 +1122,7 @@
                         //     // me.addEvents('storeLoad');
                         //     me.callParent(arguments);
                         // },
-                        applyIsPrimary: function(newValue, oldvalue) {
+                        applyIsPrimary: function(newValue) {
                             var store = Ext.data.StoreManager.lookup(
                                 'QregPVUnitStore' +
                                     (newValue ? '' : 'Secondary')
@@ -1180,12 +1187,7 @@
                                     repo.getLocal()._secondaryClinic = unitId;
                                 }
                                 if (!this.skipStoreLoad) {
-                                    repo
-                                        .getMainStore()
-                                        .loadNewUnitData(
-                                            repo.getPrimaryUnit(),
-                                            repo.getSecondaryUnit()
-                                        );
+                                    repo.getMainStore().loadNewUnitData();
                                 }
                                 // repo.getMainStore().loadNewUnitData(this.isPrimary ? this.getValue() : null, this.isPrimary ? null : this.getValue());
                                 //Collapse container on change
@@ -1272,12 +1274,12 @@
                                     var m = {}, fieldInstanceFn;
                                     if (
                                         me.getFirstUnit() &&
-                                            r['Q_Unit'] === me.getFirstUnit()
+                                        r['Q_Unit'] === me.getFirstUnit()
                                     ) {
                                         fieldInstanceFn = me.getFirstFieldInstance;
                                     } else if (
                                         me.getSecondUnit() &&
-                                            r['Q_Unit'] === me.getSecondUnit()
+                                        r['Q_Unit'] === me.getSecondUnit()
                                     ) {
                                         fieldInstanceFn = me.getSecondFieldInstance;
                                     } else {
