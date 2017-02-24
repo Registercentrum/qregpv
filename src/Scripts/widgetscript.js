@@ -1,7 +1,7 @@
-(function(repo) {
-    (function(local) {
+(function (repo) {
+    (function (local) {
         local.Methods = {
-            initialize: function(callbackFn) {
+            initialize: function (callbackFn) {
                 var me = this,
                     collectionDate = Ext.fly('data-collection-date'),
                     __qregPVSettings = window.__qregPVSettings || null; // getglobalSettingsObject defined under htmlmarkup
@@ -22,18 +22,18 @@
                     me._initializeDefinitions();
                     me.initializeUnitStore();
                     me.initializeIndicatorStore();
-                    me.initializeLatestDate(function(resp) {
+                    me.initializeLatestDate(function (resp) {
                         if (resp && resp.success) {
                             collectionDate &&
                                 collectionDate.setHtml(
                                     me.getCurrentDate('F Y')
                                 );
                             me.getLocal()._unitStore.load({
-                                callback: function() {
+                                callback: function () {
                                     me.getLocal()._indicatorStore.load({
-                                        callback: function() {
+                                        callback: function () {
                                             me._initializeWithDialog(
-                                                function() {
+                                                function () {
                                                     me.initializeCountStore();
                                                     typeof callbackFn ===
                                                         'function' &&
@@ -57,25 +57,26 @@
                 }
                 me._initOnce = me._initOnce || true;
             },
-            _initializeWithDialog: function(callbackFn) {
-                var me = this, cookieUnit = me.updateUnitFromCookie();
+            _initializeWithDialog: function (callbackFn) {
+                var me = this,
+                    cookieUnit = me.updateUnitFromCookie();
                 if (cookieUnit) {
                     callbackFn();
                 } else {
-                    me.createPrimaryUnitInitilizer(function() {
+                    me.createPrimaryUnitInitilizer(function () {
                         callbackFn();
                         // me.storeUnitInCookie();
                     });
                 }
             },
-            updateUnitFromCookie: function() {
+            updateUnitFromCookie: function () {
                 var unit = Ext.util.Cookies.get('_qregPVUnit');
                 if (unit) {
                     this.getLocal()._primaryClinic = unit;
                 }
                 return unit;
             },
-            storeUnitInCookie: function() {
+            storeUnitInCookie: function () {
                 //Currently low expireDate for testing...
                 var unit = this.getPrimaryUnit(),
                     expireDate = Ext.Date.add(new Date(), Ext.Date.YEAR, 1);
@@ -83,10 +84,10 @@
                     Ext.util.Cookies.set('_qregPVUnit', unit, expireDate);
                 }
             },
-            clearCookie: function() {
+            clearCookie: function () {
                 Ext.util.Cookies.clear('_qregPVUnit');
             },
-            getCurrentDate: function(toStringFormat) {
+            getCurrentDate: function (toStringFormat) {
                 var d = new Date(
                     this.getCurrentYear() + '/' + this.getCurrentMonth() + '/01'
                 );
@@ -95,59 +96,54 @@
                 }
                 return d;
             },
-            getLocal: function() {
+            getLocal: function () {
                 //TODO: Fix cause of undefined when not
                 Repository.Local.current = Repository.Local.current || {};
                 return Repository.Local.current;
             },
-            setCurrentMonth: function(month) {
+            setCurrentMonth: function (month) {
                 this.getLocal()._currentMonth = month;
             },
-            getCurrentMonth: function() {
+            getCurrentMonth: function () {
                 return this.getLocal()._currentMonth || 12; //TODO: Implement initialization of month
             },
-            getCurrentYear: function() {
+            getCurrentYear: function () {
                 return this.getLocal()._currentYear || 2013; //TODO: Implement initialization of year
             },
-            setCurrentYear: function(year) {
+            setCurrentYear: function (year) {
                 this.getLocal()._currentYear = year;
             },
-            getStartMonth: function() {
+            getStartMonth: function () {
                 var month = this.getCurrentMonth();
                 return month === 12 ? 1 : (month + 1) % 13;
             },
-            getStartYear: function() {
+            getStartYear: function () {
                 var month = this.getCurrentMonth(),
                     year = this.getCurrentYear();
                 return month === 12 ? year : year - 1;
             },
-            initializeUnitStore: function() {
+            initializeUnitStore: function () {
                 var conf = {
-                    model: Ext.define('QRegPV.UnitModel', {
-                        extend: 'Ext.data.Model',
-                        fields: [
-                            {
+                        model: Ext.define('QRegPV.UnitModel', {
+                            extend: 'Ext.data.Model',
+                            fields: [{
                                 name: 'UnitID',
                                 mapping: 'key'
-                            },
-                            {
+                            }, {
                                 name: 'UnitName',
                                 mapping: 'value'
-                            }
-                        ],
-                        idProperty: 'UnitID'
-                    }),
-                    sorters: [
-                        {
+                            }],
+                            idProperty: 'UnitID'
+                        }),
+                        sorters: [{
                             property: 'UnitName'
-                        }
-                    ],
-                    filters: [
-                        function(a) {
-                            return !!a.get('UnitID');
-                        }
-                    ]
-                },
+                        }],
+                        filters: [
+                            function (a) {
+                                return !!a.get('UnitID');
+                            }
+                        ]
+                    },
                     primaryId = 'QregPVUnitStore',
                     secondaryId = primaryId + 'Secondary';
                 this.getLocal()._unitStore = Ext.StoreManager.lookup(
@@ -157,8 +153,7 @@
                 if (!this.getLocal()._unitStore) {
                     this.getLocal()._unitStore = Ext.create(
                         'Ext.data.Store',
-                        Ext.apply(
-                            {
+                        Ext.apply({
                                 storeId: primaryId,
                                 proxy: {
                                     type: 'ajax',
@@ -170,7 +165,7 @@
                                     }
                                 },
                                 listeners: {
-                                    load: function(s, records) {
+                                    load: function (s, records) {
                                         var secondaryStore = Ext.StoreManager.lookup(
                                             secondaryId
                                         );
@@ -185,8 +180,7 @@
                     );
                     this.getLocal()._unitStoreSecondary = Ext.create(
                         'Ext.data.Store',
-                        Ext.apply(
-                            {
+                        Ext.apply({
                                 storeId: secondaryId
                             },
                             conf
@@ -194,13 +188,13 @@
                     );
                 }
             },
-            initializeLatestDate: function(callback) {
+            initializeLatestDate: function (callback) {
                 var repo = this;
                 Ext.Ajax.request({
                     url: '//stratum.registercentrum.se/api/aggregate/QRegPV/QRegPV/Total/Max(Q_Month)/Q_Year',
                     localCall: true, //TODO: Remove
                     method: 'get',
-                    success: function(response) {
+                    success: function (response) {
                         var obj = Ext.decode(response.responseText);
                         var currYear = Ext.max(Ext.Object.getKeys(obj.data)),
                             collectionDate = Ext.fly('data-collection-date'),
@@ -225,7 +219,7 @@
                                 message: 'Failed parsing year'
                             });
                     },
-                    failure: function(resp) {
+                    failure: function (resp) {
                         Ext.isFunction(callback) &&
                             callback({
                                 success: false,
@@ -234,24 +228,21 @@
                     }
                 });
             },
-            initializeIndicatorStore: function() {
+            initializeIndicatorStore: function () {
                 this.getLocal()._indicatorStore = Ext.StoreManager.lookup(
-                    'QregPVIndicatorStore'
-                ) ||
+                        'QregPVIndicatorStore'
+                    ) ||
                     Ext.create('Ext.data.Store', {
                         storeId: 'QregPVIndicatorStore',
                         model: Ext.define('QRegPV.IndicatorModel', {
                             extend: 'Ext.data.Model',
-                            fields: [
-                                {
-                                    name: 'Indicator',
-                                    mapping: 'key'
-                                },
-                                {
-                                    name: 'IndicatorName',
-                                    mapping: 'value'
-                                }
-                            ],
+                            fields: [{
+                                name: 'Indicator',
+                                mapping: 'key'
+                            }, {
+                                name: 'IndicatorName',
+                                mapping: 'value'
+                            }],
                             idProperty: 'Indicator'
                         }),
                         proxy: {
@@ -264,12 +255,12 @@
                         }
                     });
             },
-            initializeCountStore: function() {
+            initializeCountStore: function () {
                 var me = this,
                     currentUnit = me.getLocal()._primaryClinic || me.getHSAID();
                 me.getLocal()._countStoreKrs = Ext.StoreManager.lookup(
-                    'QRegPVCountStoreKrs'
-                ) ||
+                        'QRegPVCountStoreKrs'
+                    ) ||
                     Ext.create('Ext.data.Store', {
                         storeId: 'QRegPVCountStoreKrs',
                         fields: [
@@ -282,50 +273,47 @@
                             'Sickness'
                         ],
                         filters: [
-                            function(v) {
+                            function (v) {
                                 return v.get('Q_Indicator') === 2023;
                             }
                         ]
                     });
                 me.getLocal()._countStoreHyp = Ext.StoreManager.lookup(
-                    'QRegPVCountStoreHyp'
-                ) ||
+                        'QRegPVCountStoreHyp'
+                    ) ||
                     Ext.create('Ext.data.Store', {
                         storeId: 'QRegPVCountStoreHyp',
                         fields: [
-                            'Q_Varde',
-                            {
+                            'Q_Varde', {
                                 name: 'Date',
-                                convert: function(v, r) {
+                                convert: function (v, r) {
                                     return Ext.Date.format(
                                         new Date(
                                             r.get('Q_Year') +
-                                                '/' +
-                                                r.get('Q_Month') +
-                                                '/1'
+                                            '/' +
+                                            r.get('Q_Month') +
+                                            '/1'
                                         ),
                                         'F Y'
                                     );
                                 }
-                            },
-                            {
+                            }, {
                                 name: 'Q_Unit',
-                                convert: function(v) {
+                                convert: function (v) {
                                     return me.getUnitName(v);
                                 }
                             },
                             'Q_Month',
                             'Q_Year',
-                            'Q_Indicator',
-                            {
+                            'Q_Indicator', {
                                 name: 'Sickness',
-                                convert: function(v, r) {
+                                convert: function (v, r) {
                                     return Ext.String.startsWith(
-                                        r.get('Q_Indicator') + '',
-                                        '10'
-                                    )
-                                        ? 'hypertoni'
-                                        : 'kranskärlssjukdom';
+                                            r.get('Q_Indicator') + '',
+                                            '10'
+                                        ) ?
+                                        'hypertoni' :
+                                        'kranskärlssjukdom';
                                 }
                             }
                         ],
@@ -337,8 +325,8 @@
                                 rootProperty: 'data'
                             }
                         },
-                        loadCountData: function(HSAID, year, month) {
-                            var loadFn = function() {
+                        loadCountData: function (HSAID, year, month) {
+                            var loadFn = function () {
                                 var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Year%20eq%20{1},Q_Month%20eq%20{2},Q_Indicator%20in%20{3}|{4},Q_Unit%20eq%20{0}';
                                 this.proxy.url = Ext.String.format(
                                     url,
@@ -359,12 +347,12 @@
                             }
                         },
                         listeners: {
-                            load: function(s, records) {
+                            load: function (s, records) {
                                 me.getLocal()._countStoreKrs.loadData(records);
                             }
                         },
                         filters: [
-                            function(v) {
+                            function (v) {
                                 return v.get('Q_Indicator') === 1022;
                             }
                         ]
@@ -378,7 +366,7 @@
                     );
                 }
             },
-            getMainStore: function(conf) {
+            getMainStore: function (conf) {
                 var me = this,
                     mainStore = Ext.StoreManager.lookup('QRegPV.MainStore'),
                     first = false;
@@ -402,10 +390,10 @@
                             }
                         },
                         // todo, call this method on widjet sitch? and set defaults here?
-                        loadNewUnitData: function(skipLoad) {
+                        loadNewUnitData: function (skipLoad) {
                             var firstHSAID = me.getPrimaryUnit(),
                                 secondHSAID = me.getSecondaryUnit();
-                                var offSet = me.qregPVSettings.offsetStartDate || -1;
+                            var offSet = me.qregPVSettings.offsetStartDate || -1;
                             var startDate = Ext.Date.format(
                                 Ext.Date.add(
                                     me.getCurrentDate(),
@@ -414,7 +402,7 @@
                                 ),
                                 'Y-m-d'
                             );
-                            var loadFn = function() {                                                            
+                            var loadFn = function () {
                                 var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Date%20gt%20' +
                                     startDate +
                                     ',Q_Unit%20in%20{0}|{1}';
@@ -437,7 +425,7 @@
                                     // console.log(filters);
                                     this.load({
                                         scope: this,
-                                        callback: function() {
+                                        callback: function () {
                                             Ext.isFunction(this._currFilter) &&
                                                 this.filter(this._currFilter);
                                         }
@@ -453,7 +441,7 @@
                             }
                         },
                         listeners: {
-                            load: function() {
+                            load: function () {
                                 Ext.isFunction(this.onLoadFn) &&
                                     this.onLoadFn.apply(this, arguments);
                             }
@@ -500,14 +488,14 @@
                 }
                 return mainStore;
             },
-            loadCountData: function(HSAID, year, month) {
+            loadCountData: function (HSAID, year, month) {
                 if (this.getLocal()._countStoreHyp) {
                     this
                         .getLocal()
                         ._countStoreHyp.loadCountData(HSAID, year, month);
                 }
             },
-            createPrimaryUnitInitilizer: function(callbackFn) {
+            createPrimaryUnitInitilizer: function (callbackFn) {
                 var me = this;
                 Ext
                     .create('Ext.window.Window', {
@@ -528,17 +516,15 @@
                         y: 200,
                         resizable: false,
                         modal: true,
-                        buttons: [
-                            {
-                                text: 'Avbryt',
-                                handler: function() {
-                                    var parentWin = this.up('window', 2);
-                                    parentWin && parentWin.close();
-                                }
+                        buttons: [{
+                            text: 'Avbryt',
+                            handler: function () {
+                                var parentWin = this.up('window', 2);
+                                parentWin && parentWin.close();
                             }
-                        ],
+                        }],
                         listeners: {
-                            close: function() {
+                            close: function () {
                                 callbackFn();
                                 this.destroy();
                             }
@@ -551,42 +537,42 @@
              * A bit excessive for use with the inline stylesheet creation..
              * Should preferably be handled in a component specific css file, part of the theme
              */
-            _initConfigPanelCSS: function() {
+            _initConfigPanelCSS: function () {
                 if (!this._initConfigPanelCSS.initialized) {
                     Ext.util.CSS.createStyleSheet(
                         '.qreg-config-panel {' +
-                            '   background: #eee;' +
-                            '   float: right;' +
-                            '   border-radius: 16px;' +
-                            '   border: 1px solid #c7c7c7;' +
-                            '}' +
-                            '.qreg-config-panel .x-title-icon {' +
-                            '   font-size: 26px;' +
-                            '   color: #555;' +
-                            '   cursor: pointer;' +
-                            '   right: 6px;' +
-                            '   position: absolute;' +
-                            '   top: 10px;' +
-                            '}' +
-                            '.qreg-config-panel:after {' +
-                            'content: ".";' +
-                            'visibility: hidden;' +
-                            'display: block;' +
-                            'height: 0;' +
-                            'clear: both;' +
-                            '}' +
-                            '.qregpv-clinic-input input::-ms-clear{display: none;}' +
-                            '.qreg-config-over { cursor: pointer; background:#ddd; border-radius: 16px;background:-moz-linear-gradient(top,#cacaca 0,#eee 100%);' +
-                            'background:-webkit-gradient(linear,left top,left bottom,color-stop(0%,#cacaca),color-stop(100%,#eee));' +
-                            'background:-webkit-linear-gradient(top,#cacaca 0,#eee 100%);background:-o-linear-gradient(top,#cacaca 0,#eee 100%);' +
-                            'background:-ms-linear-gradient(top,#cacaca 0,#eee 100%);background:linear-gradient(to bottom,#cacaca 0,#eee 100%);}' +
-                            '.qreg-config-over .x-title-icon{color:#333;-webkit-animation:spin 1s ease 1;-moz-animation:spin 1s ease 1;animation:spin 1s ease 1}@-moz-keyframes spin{100%{-moz-transform:rotate(360deg)}}@-webkit-keyframes spin{100%{-webkit-transform:rotate(360deg)}}@keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}' +
-                            '.qreg-combo-list li {padding: 5px 9px; border-bottom: 1px solid #F4F4F4; font-size: 14px;}'
+                        '   background: #eee;' +
+                        '   float: right;' +
+                        '   border-radius: 16px;' +
+                        '   border: 1px solid #c7c7c7;' +
+                        '}' +
+                        '.qreg-config-panel .x-title-icon {' +
+                        '   font-size: 26px;' +
+                        '   color: #555;' +
+                        '   cursor: pointer;' +
+                        '   right: 6px;' +
+                        '   position: absolute;' +
+                        '   top: 10px;' +
+                        '}' +
+                        '.qreg-config-panel:after {' +
+                        'content: ".";' +
+                        'visibility: hidden;' +
+                        'display: block;' +
+                        'height: 0;' +
+                        'clear: both;' +
+                        '}' +
+                        '.qregpv-clinic-input input::-ms-clear{display: none;}' +
+                        '.qreg-config-over { cursor: pointer; background:#ddd; border-radius: 16px;background:-moz-linear-gradient(top,#cacaca 0,#eee 100%);' +
+                        'background:-webkit-gradient(linear,left top,left bottom,color-stop(0%,#cacaca),color-stop(100%,#eee));' +
+                        'background:-webkit-linear-gradient(top,#cacaca 0,#eee 100%);background:-o-linear-gradient(top,#cacaca 0,#eee 100%);' +
+                        'background:-ms-linear-gradient(top,#cacaca 0,#eee 100%);background:linear-gradient(to bottom,#cacaca 0,#eee 100%);}' +
+                        '.qreg-config-over .x-title-icon{color:#333;-webkit-animation:spin 1s ease 1;-moz-animation:spin 1s ease 1;animation:spin 1s ease 1}@-moz-keyframes spin{100%{-moz-transform:rotate(360deg)}}@-webkit-keyframes spin{100%{-webkit-transform:rotate(360deg)}}@keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}' +
+                        '.qreg-combo-list li {padding: 5px 9px; border-bottom: 1px solid #F4F4F4; font-size: 14px;}'
                     );
                     this._initConfigPanelCSS.initialized = true;
                 }
             },
-            _qregPVSettings: function() {
+            _qregPVSettings: function () {
                 return {
                     colors: ['#B39C85', '#FF5335'],
                     indicatorType: '10',
@@ -594,12 +580,11 @@
                     selectedIndicator: '1001'
                 };
             },
-            getHSAID: function() {
+            getHSAID: function () {
                 try {
                     return Profile.Context.Unit.HSAID;
                 } catch (e) {
-                    Ext.log(
-                        {
+                    Ext.log({
                             level: 'error',
                             dump: e,
                             stack: true
@@ -609,34 +594,34 @@
                     return null;
                 }
             },
-            getIndicatorName: function(id) {
+            getIndicatorName: function (id) {
                 var indicator = this.getLocal()._indicatorStore.getById(id);
                 return indicator && indicator.get('IndicatorName');
             },
-            getIndicatorType: function() {
+            getIndicatorType: function () {
                 return this.qregPVSettings.indicatorType;
             },
-            getCombinedMeasureIds: function() {
+            getCombinedMeasureIds: function () {
                 return this.qregPVSettings.combinedMeasureIds || [];
             },
-            getCombinedIndicatorId: function() {
+            getCombinedIndicatorId: function () {
                 return this.qregPVSettings.combinedIndicatorId;
             },
-            getPopulationIndicatorId: function() {
+            getPopulationIndicatorId: function () {
                 return this.qregPVSettings.populationIndicatorId;
             },
-            getViewIds: function() {
+            getViewIds: function () {
                 return this.qregPVSettings.viewIds;
             },
-            getCurrentId: function() {
+            getCurrentId: function () {
                 return this.qregPVSettings.selectedIndicator ||
                     this.qregPVSettings.viewIds[0];
             },
-            getViewIdFirstOrDefault: function() {
+            getViewIdFirstOrDefault: function () {
                 return this.qregPVSettings.viewId &&
                     this.qregPVSettings.viewIds[0];
             },
-            _getAlphaColor: function(color, alpha) {
+            _getAlphaColor: function (color, alpha) {
                 var aColor = Ext.draw.Color.fly(color);
                 return Ext.String.format(
                     'rgba({0}, {1}, {2}, {3})',
@@ -646,97 +631,130 @@
                     alpha
                 );
             },
-            getPrimaryColor: function(alpha) {
+            getPrimaryColor: function (alpha) {
                 var color = this.qregPVSettings.colors &&
                     this.qregPVSettings.colors[1] ||
                     '#555';
-                return Ext.isNumeric(alpha)
-                    ? this._getAlphaColor(color, alpha)
-                    : color;
+                return Ext.isNumeric(alpha) ?
+                    this._getAlphaColor(color, alpha) :
+                    color;
             },
-            getSecondaryColor: function(alpha) {
+            getSecondaryColor: function (alpha) {
                 var color = this.qregPVSettings.colors &&
                     this.qregPVSettings.colors[0] ||
                     '#999';
-                return Ext.isNumeric(alpha)
-                    ? this._getAlphaColor(color, alpha)
-                    : color;
+                return Ext.isNumeric(alpha) ?
+                    this._getAlphaColor(color, alpha) :
+                    color;
             },
-            getPrimaryUnit: function() {
+            getPrimaryUnit: function () {
                 return this._getUnit();
             },
-            getSecondaryUnit: function() {
+            getSecondaryUnit: function () {
                 return this._getUnit(true);
             },
-            _getUnit: function(isSecondary) {
+            _getUnit: function (isSecondary) {
                 var unit;
                 try {
-                    unit = isSecondary
-                        ? this.getLocal()._secondaryClinic
-                        : this.getLocal()._primaryClinic;
+                    unit = isSecondary ?
+                        this.getLocal()._secondaryClinic :
+                        this.getLocal()._primaryClinic;
                 } catch (e) {
                     unit = null;
                 } finally {
-                    unit = !unit
-                        ? isSecondary ? this.getRegionHSAID() : this.getHSAID()
-                        : unit;
+                    unit = !unit ?
+                        isSecondary ? this.getRegionHSAID() : this.getHSAID() :
+                        unit;
                 }
                 return unit;
             },
-            getUnitName: function(id) {
+            getUnitName: function (id) {
                 var unit = this.getLocal()._unitStore.getById(id);
                 return unit && unit.get('UnitName');
             },
-            getRegionHSAID: function() {
+            getRegionHSAID: function () {
                 return 'SE2321000131-E000000000001';
             },
-            isHypertoni: function() {
+            isHypertoni: function () {
                 return !!this.qregPVSettings.hypertoni;
             },
-            setRankingSprites: function(chart, indicator, place, total) {
-                chart.setSprites([
-                    {
-                        type: 'text',
-                        text: 'Ranking bland alla vårdcentraler*:',
-                        textAlign: 'left',
-                        fontSize: 18,
-                        fontFamily: 'open_sans, sans-serif',
-                        width: 200,
-                        height: 20,
-                        x: 5,
-                        y: 15
-                    },
-                    {
-                        type: 'text',
-                        text: Ext.String.format(
-                            '{0} ({1} av {2} från vänster)',
-                            indicator,
-                            place,
-                            total
-                        ),
-                        textAlign: 'left',
-                        fontSize: 14,
-                        fontFamily: 'open_sans, sans-serif',
-                        width: 200,
-                        height: 20,
-                        x: 5,
-                        y: 35
-                    }
-                ]);
+            setRankingSprites: function (chart, indicator, place, total) {
+                chart.setSprites([{
+                    type: 'text',
+                    text: 'Ranking bland alla vårdcentraler*:',
+                    textAlign: 'left',
+                    fontSize: 18,
+                    fontFamily: 'open_sans, sans-serif',
+                    width: 200,
+                    height: 20,
+                    x: 5,
+                    y: 15
+                }, {
+                    type: 'text',
+                    text: Ext.String.format(
+                        '{0} ({1} av {2} från vänster)',
+                        indicator,
+                        place,
+                        total
+                    ),
+                    textAlign: 'left',
+                    fontSize: 14,
+                    fontFamily: 'open_sans, sans-serif',
+                    width: 200,
+                    height: 20,
+                    x: 5,
+                    y: 35
+                }]);
             },
-            setRankingTitle: function(store, chart, subtitleFn) {
+            jsonToCSV: function (arrData, title) {
+                var CSV = '';
+                var firstRow = arrData[0];
+                var keys = [];
+                Ext.Object.each(firstRow, function (propName) {
+                    if (firstRow.hasOwnProperty(propName)) {
+                        keys.push(propName);
+                    }
+                });
+                CSV += keys.join(';');
+                CSV += '\r\n';
+
+                Ext.each(arrData, function (row) {
+                    var rowString = '';
+                    Ext.Array.each(keys, function (propName) {
+                        rowString += row[propName] + ';';
+                    });
+                    rowString = rowString.slice(0, -1);
+                    CSV += rowString + '\r\n';
+                });
+
+
+                if (CSV === '') {
+                    return;
+                }
+
+                //Generate a file name
+                var fileName = 'Tabell_' + title.replace(/\s/g, '_') + '.csv';
+
+
+                var data = 'data:text/plain;charset=utf-8,' + encodeURIComponent(CSV);
+                return {
+                    filename: fileName,
+                    data: data
+                }
+            },
+            setRankingTitle: function (store, chart, subtitleFn) {
                 var count = store.count(),
                     primaryUnit = this.getPrimaryUnit(),
                     place = store.find('Q_Unit', primaryUnit) + 1,
-                    indicator = Ext.isFunction(subtitleFn)
-                        ? subtitleFn(store.first())
-                        : this.getIndicatorName(
-                              store.first().get('Q_Indicator')
-                          );
+                    indicator = Ext.isFunction(subtitleFn) ?
+                    subtitleFn(store.first()) :
+                    this.getIndicatorName(
+                        store.first().get('Q_Indicator')
+                    );
 
                 this.setRankingSprites(chart, indicator, place, count);
             },
-            initializeLoader: function() {
+            initializeLoader: function () {
                 if (Ext.LoadMask) {
                     Ext.override(Ext.LoadMask, {
                         cls: 'greg-loader',
@@ -747,101 +765,94 @@
                     });
                     Ext.util.CSS.createStyleSheet(
                         '.greg-loader {' +
-                            '   border: 0;' +
-                            '   padding: 0;' +
-                            '   background-color: #fff;' +
-                            '   -webkit-background-clip: padding-box;' +
-                            '   background-clip: padding-box;' +
-                            '   border: 1px solid #C8C8C8;' +
-                            '   border-radius: 6px;' +
-                            '   outline: 0;' +
-                            '   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,0.3);' +
-                            '   box-shadow: 0 3px 9px rgba(0,0,0,0.3);' +
-                            '   ' +
-                            '}' +
-                            '.qreg-loader-msg,.qreg-loader-msg .x-mask-msg-text {' +
-                            '   padding: 0;' +
-                            '   border: 0;' +
-                            '   width: 100%; height: 100%;' +
-                            '   background-color: #fff;' +
-                            '   text-align: center;' +
-                            // '   text-transform: uppercase;' +
-                            '   font-size: 11px;' +
-                            '   color: #696969;' +
-                            '}' +
-                            '.qreg-loader-msg .x-mask-msg-text{' +
-                            '   background-image: url(../img/qregring.gif);' +
-                            '   background-position: center 30px;' +
-                            '   padding: 115px 0 0 0;' +
-                            '}'
+                        '   border: 0;' +
+                        '   padding: 0;' +
+                        '   background-color: #fff;' +
+                        '   -webkit-background-clip: padding-box;' +
+                        '   background-clip: padding-box;' +
+                        '   border: 1px solid #C8C8C8;' +
+                        '   border-radius: 6px;' +
+                        '   outline: 0;' +
+                        '   -webkit-box-shadow: 0 3px 9px rgba(0,0,0,0.3);' +
+                        '   box-shadow: 0 3px 9px rgba(0,0,0,0.3);' +
+                        '   ' +
+                        '}' +
+                        '.qreg-loader-msg,.qreg-loader-msg .x-mask-msg-text {' +
+                        '   padding: 0;' +
+                        '   border: 0;' +
+                        '   width: 100%; height: 100%;' +
+                        '   background-color: #fff;' +
+                        '   text-align: center;' +
+                        // '   text-transform: uppercase;' +
+                        '   font-size: 11px;' +
+                        '   color: #696969;' +
+                        '}' +
+                        '.qreg-loader-msg .x-mask-msg-text{' +
+                        '   background-image: url(../img/qregring.gif);' +
+                        '   background-position: center 30px;' +
+                        '   padding: 115px 0 0 0;' +
+                        '}'
                     );
                 }
             },
             //Initializes all the Ext 'defines' used by the QRegPV app
-            _initializeDefinitions: function() {
+            _initializeDefinitions: function () {
                 var repo = this;
                 this._initConfigPanelCSS();
                 Ext.namespace('QRegPV');
                 // this.initializeLoader();
                 Ext.util.CSS.createStyleSheet(
                     '.chartbox {' +
-                        '    padding: 9px 14px 9px 14px;' +
-                        '    margin-left: 10px;' +
-                        '    background-color: #f7f7f9;' +
-                        '    border: 1px solid #e1e1e8;' +
-                        '    border-radius: 4px;' +
-                        '}' +
-                        // '.super-tip { background-color: #fff; }'+
-                        // '.super-tip .x-tip-header-body { border: none; padding-bottom: 0; padding-top: 8px; }' +
-                        // '.super-tip .x-tip-header-text { font-size: 14px !important; font-style: normal;}' +
-                        '.box-description{ margin: 0; padding: 0; font-style: italic; font-size: 16px; }' +
-                        '.qregpv-slider .x-slider-thumb:hover {cursor: pointer;background-color: #bebebe;}' +
-                        '.qregpv-slider .x-slider-thumb {background: #dedede;border-radius: 8px;width: 16px;height: 16px;border: 1px solid #666;}' +
-                        '.qreg-count-row {margin: 0 6px 4px 0; padding-right: 5px; text-align: right;font-style: italic; font-size: 12px; color: #555;}' +
-                        '.qreg-count-row p {margin: 0;}' +
-                        '.qreg-count-row .qreg-count-desc {font-size: 10px;}' +
-                        '.qreg-count-row.x-view-item-focused { outline: 0 !important; }'
+                    '    padding: 9px 14px 9px 14px;' +
+                    '    margin-left: 10px;' +
+                    '    background-color: #f7f7f9;' +
+                    '    border: 1px solid #e1e1e8;' +
+                    '    border-radius: 4px;' +
+                    '}' +
+                    // '.super-tip { background-color: #fff; }'+
+                    // '.super-tip .x-tip-header-body { border: none; padding-bottom: 0; padding-top: 8px; }' +
+                    // '.super-tip .x-tip-header-text { font-size: 14px !important; font-style: normal;}' +
+                    '.box-description{ margin: 0; padding: 0; font-style: italic; font-size: 16px; }' +
+                    '.qregpv-slider .x-slider-thumb:hover {cursor: pointer;background-color: #bebebe;}' +
+                    '.qregpv-slider .x-slider-thumb {background: #dedede;border-radius: 8px;width: 16px;height: 16px;border: 1px solid #666;}' +
+                    '.qreg-count-row {margin: 0 6px 4px 0; padding-right: 5px; text-align: right;font-style: italic; font-size: 12px; color: #555;}' +
+                    '.qreg-count-row p {margin: 0;}' +
+                    '.qreg-count-row .qreg-count-desc {font-size: 10px;}' +
+                    '.qreg-count-row.x-view-item-focused { outline: 0 !important; }'
                 );
 
                 Ext.define('qRegMainModel', {
                     extend: 'Ext.data.Model',
-                    fields: [
-                        {
+                    fields: [{
                             name: 'Q_Indicator',
                             type: 'string'
-                        },
-                        {
+                        }, {
                             name: 'Date',
-                            convert: function(v, r) {
+                            convert: function (v, r) {
                                 return Ext.Date.parse(
                                     r.get('Q_Year') + '-' + r.get('Q_Month'),
                                     'Y-n'
                                 );
                             }
-                        },
-                        {
+                        }, {
                             name: 'IndicatorName',
-                            convert: function(v, record) {
+                            convert: function (v, record) {
                                 return repo.getIndicatorName(
                                     record.get('Q_Indicator')
                                 );
                             }
-                        },
-                        {
+                        }, {
                             name: 'Q_Month',
                             type: 'number'
-                        },
-                        {
+                        }, {
                             name: 'Q_Year',
                             type: 'number'
                         },
-                        'Q_Unit_0',
-                        {
+                        'Q_Unit_0', {
                             name: 'Q_Varde_0',
                             type: 'number'
                         },
-                        'Q_Unit_1',
-                        {
+                        'Q_Unit_1', {
                             name: 'Q_Varde_1',
                             type: 'number'
                         },
@@ -853,23 +864,20 @@
                 !Ext.ClassManager.isCreated('QRegPV.TipStore') &&
                     Ext.define('QRegPV.TipStore', {
                         extend: 'Ext.data.Store',
-                        sorters: [
-                            {
-                                property: 'Year',
-                                direction: 'ASC'
-                            },
-                            {
-                                property: 'Month',
-                                direction: 'ASC'
-                            }
-                        ],
-                        setLastLoadedIndicator: function(indicatorId) {
+                        sorters: [{
+                            property: 'Year',
+                            direction: 'ASC'
+                        }, {
+                            property: 'Month',
+                            direction: 'ASC'
+                        }],
+                        setLastLoadedIndicator: function (indicatorId) {
                             this._lastLoadedIndicator = indicatorId;
                         },
-                        getLastLoadedIndicator: function() {
+                        getLastLoadedIndicator: function () {
                             return this._lastLoadedIndicator;
                         },
-                        clearLastLoadedIndicator: function() {
+                        clearLastLoadedIndicator: function () {
                             delete this._lastLoadedIndicator;
                         }
                     });
@@ -893,9 +901,9 @@
                             right: 6
                         },
                         legend: false,
-                        constructor: function(config) {
+                        constructor: function (config) {
                             config.series = [];
-                            Ext.Array.each(config.yField, function(yField) {
+                            Ext.Array.each(config.yField, function (yField) {
                                 config.series.push({
                                     type: 'line',
                                     // axis: 'left',
@@ -908,57 +916,54 @@
                                     useDarkerStrokeColor: false
                                 });
                             });
-                            config.axes = [
-                                {
-                                    type: 'numeric',
-                                    position: 'left',
-                                    // fields: config.yField,
-                                    renderer: function(v) {
-                                        return Ext.util.Format.number(v, '0%');
-                                    },
-                                    label: {
-                                        fontSize: 11
-                                    },
-                                    // maximum: 100,
-                                    // minimum: 0,
-                                    majorTickSteps: 4,
-                                    // minorTickSteps: 0,
-                                    grid: true,
-                                    style: {
-                                        strokeStyle: '#ccc'
-                                    }
+                            config.axes = [{
+                                type: 'numeric',
+                                position: 'left',
+                                // fields: config.yField,
+                                renderer: function (v) {
+                                    return Ext.util.Format.number(v, '0%');
                                 },
-                                {
-                                    type: 'category',
-                                    position: 'bottom',
-                                    // fields: config.xField,
-                                    label: {
-                                        rotate: {
-                                            degrees: 270
-                                        },
-                                        fontSize: 11
-                                        //, fontStyle: '#999'
-                                    },
-                                    renderer: function(v) {
-                                        return Ext.isDate(v)
-                                            ? Ext.Date.format(
-                                                  v,
-                                                  v.getMonth() === 0 ? 'Y' : 'M'
-                                              )
-                                            : v;
-                                    },
-                                    style: {
-                                        strokeStyle: '#ccc'
-                                    }
+                                label: {
+                                    fontSize: 11
+                                },
+                                // maximum: 100,
+                                // minimum: 0,
+                                majorTickSteps: 4,
+                                // minorTickSteps: 0,
+                                grid: true,
+                                style: {
+                                    strokeStyle: '#ccc'
                                 }
-                            ];
+                            }, {
+                                type: 'category',
+                                position: 'bottom',
+                                // fields: config.xField,
+                                label: {
+                                    rotate: {
+                                        degrees: 270
+                                    },
+                                    fontSize: 11
+                                        //, fontStyle: '#999'
+                                },
+                                renderer: function (v) {
+                                    return Ext.isDate(v) ?
+                                        Ext.Date.format(
+                                            v,
+                                            v.getMonth() === 0 ? 'Y' : 'M'
+                                        ) :
+                                        v;
+                                },
+                                style: {
+                                    strokeStyle: '#ccc'
+                                }
+                            }];
                             this.callParent([config]);
                         }
                     });
                 !Ext.ClassManager.isCreated('QRegPV.ConfigContainer') &&
                     Ext.define('QRegPV.ConfigContainer', {
                         extend: 'Ext.container.Container',
-                        initComponent: function() {
+                        initComponent: function () {
                             var innerPanel = Ext.create('QRegPV.ConfigPanel', {
                                 items: this.items,
                                 width: this.width,
@@ -968,10 +973,10 @@
                                 layout: {
                                     type: 'hbox',
                                     pack: 'end'
-                                    // align: 'stretch'
+                                        // align: 'stretch'
                                 },
                                 items: [innerPanel],
-                                collapse: function() {
+                                collapse: function () {
                                     innerPanel.collapse();
                                 }
                             });
@@ -981,7 +986,7 @@
                 !Ext.ClassManager.isCreated('QRegPV.ConfigPanel') &&
                     Ext.define('QRegPV.ConfigPanel', {
                         extend: 'Ext.panel.Panel',
-                        collapseFn: function(p) {
+                        collapseFn: function (p) {
                             p.normalWidth = p.normalWidth ||
                                 p.ownerCt && p.ownerCt.getWidth();
                             p.setWidth(
@@ -989,12 +994,12 @@
                             );
                             // p.setTitle(p.getWidth() === p.normalWidth ? '' : 'Alternativ');
                         },
-                        initComponent: function() {
+                        initComponent: function () {
                             var collapsedWidth = 50 || 120 || 50;
                             this.on({
                                 beforecollapse: this.collapseFn,
                                 beforeexpand: this.collapseFn,
-                                boxready: function() {
+                                boxready: function () {
                                     //Start expanded if no primary unit was preselected
                                     if (!repo.getPrimaryUnit()) {
                                         this.expand();
@@ -1028,14 +1033,14 @@
                     Ext.define('QRegPV.ChartSaveButton', {
                         alias: 'widget.chartsavebutton',
                         extend: 'Ext.button.Button',
-                        initComponent: function() {
+                        initComponent: function () {
                             Ext.applyIf(this, {
                                 glyph: 0xf080,
                                 handler: this.saveChart
                             });
                             this.callParent();
                         },
-                        saveChart: function() {
+                        saveChart: function () {
                             if (!this.chart || !this.chart.save) {
                                 return;
                             }
@@ -1068,7 +1073,7 @@
                         hideTrigger: true,
                         fieldBodyCls: 'qregpv-clinic-input',
                         fieldLabel: '',
-                        constructor: function(config) {
+                        constructor: function (config) {
                             config = Ext.merge(config, {
                                 fieldStyle: {
                                     'background-color': '#FFF !important',
@@ -1089,7 +1094,7 @@
                         msgTarget: 'side',
                         afterBodyEl: '<span style="position: absolute;right: 9px;top: 30px; font-size: 18px; font-family: fontawesome; color: #DADADA; pointer-events: none;">&#xf002;</span>',
                         listeners: {
-                            focus: function() {
+                            focus: function () {
                                 this.expand();
                             }
                         }
@@ -1100,7 +1105,7 @@
                         extend: 'QRegPV.BaseIndicatorCombo',
                         alias: 'widget.qregindicatorcombo',
                         fieldLabel: 'Välj Indikator',
-                        constructor: function(config) {
+                        constructor: function (config) {
                             this.callParent([config]);
                         }
                     });
@@ -1122,35 +1127,35 @@
                         //     // me.addEvents('storeLoad');
                         //     me.callParent(arguments);
                         // },
-                        applyIsPrimary: function(newValue) {
+                        applyIsPrimary: function (newValue) {
                             var store = Ext.data.StoreManager.lookup(
                                 'QregPVUnitStore' +
-                                    (newValue ? '' : 'Secondary')
+                                (newValue ? '' : 'Secondary')
                             );
                             this.store = store;
 
                             Ext.Object.merge(this, {
                                 store: Ext.data.StoreManager.lookup(
                                     'QregPVUnitStore' +
-                                        (newValue ? '' : 'Secondary')
+                                    (newValue ? '' : 'Secondary')
                                 ),
                                 value: (
-                                    newValue
-                                        ? repo.getPrimaryUnit()
-                                        : repo.getSecondaryUnit()
+                                    newValue ?
+                                    repo.getPrimaryUnit() :
+                                    repo.getSecondaryUnit()
                                 ),
                                 fieldStyle: {
                                     'border-left-color': (
-                                        newValue
-                                            ? repo.getPrimaryColor()
-                                            : repo.getSecondaryColor()
+                                        newValue ?
+                                        repo.getPrimaryColor() :
+                                        repo.getSecondaryColor()
                                     )
                                 },
                                 fieldLabel: (
                                     this.fieldLabel ||
-                                        (newValue
-                                            ? 'Välj primär vårdcentral'
-                                            : 'Välj vårdcentral för jämförelse')
+                                    (newValue ?
+                                        'Välj primär vårdcentral' :
+                                        'Välj vårdcentral för jämförelse')
                                 ),
                                 columnDataIndex: (
                                     newValue ? 'Q_Varde_0' : 'Q_Varde_1'
@@ -1158,21 +1163,22 @@
                             });
                             return newValue;
                         },
-                        constructor: function(config) {
+                        constructor: function (config) {
                             this.callParent([config]);
                         },
                         displayField: 'UnitName',
                         valueField: 'UnitID',
                         emptyText: 'Sök efter en vårdcentral...',
                         listeners: {
-                            select: function(cb, records) {
-                                var me = this, unitId;
+                            select: function (cb, records) {
+                                var me = this,
+                                    unitId;
                                 if (!records) {
                                     return;
                                 }
-                                unitId = Ext.isArray(records)
-                                    ? records[0].get('UnitID')
-                                    : records.get('UnitID');
+                                unitId = Ext.isArray(records) ?
+                                    records[0].get('UnitID') :
+                                    records.get('UnitID');
                                 if (this.isPrimary) {
                                     repo.getLocal()._primaryClinic = unitId;
                                     if (!this.skipStoreLoad) {
@@ -1192,7 +1198,7 @@
                                 // repo.getMainStore().loadNewUnitData(this.isPrimary ? this.getValue() : null, this.isPrimary ? null : this.getValue());
                                 //Collapse container on change
                                 window.setTimeout(
-                                    function() {
+                                    function () {
                                         var parentPanel = me.up('panel', 1),
                                             parentWindow = me.up('window', 2);
                                         if (parentWindow) {
@@ -1209,7 +1215,7 @@
                                 );
                             }
                         },
-                        addSingleListener: function(event, eventFn) {
+                        addSingleListener: function (event, eventFn) {
                             if (this._singleListeners[event]) {
                                 this.un(event, this._singleListeners[event]);
                             }
@@ -1220,10 +1226,10 @@
                                 this
                             );
                         },
-                        getOtherCombo: function() {
+                        getOtherCombo: function () {
                             return this._otherCombo;
                         },
-                        setOtherCombo: function(c) {
+                        setOtherCombo: function (c) {
                             this._otherCombo = c;
                         }
                     });
@@ -1234,44 +1240,47 @@
                         rootProperty: 'data',
                         unitSpecificFields: ['Q_Varde', 'Q_Unit'],
                         fieldFormat: '{0}_{1}',
-                        setFirstUnit: function(hsaid) {
-                            this.firstUnit = typeof hsaid === 'string'
-                                ? hsaid
-                                : this.firstUnit;
+                        setFirstUnit: function (hsaid) {
+                            this.firstUnit = typeof hsaid === 'string' ?
+                                hsaid :
+                                this.firstUnit;
                         },
-                        setSecondUnit: function(hsaid) {
-                            this.secondUnit = typeof hsaid === 'string'
-                                ? hsaid
-                                : this.secondUnit;
+                        setSecondUnit: function (hsaid) {
+                            this.secondUnit = typeof hsaid === 'string' ?
+                                hsaid :
+                                this.secondUnit;
                         },
-                        getFirstUnit: function() {
+                        getFirstUnit: function () {
                             return this.firstUnit;
                         },
-                        getSecondUnit: function() {
+                        getSecondUnit: function () {
                             return this.secondUnit;
                         },
-                        getFirstFieldInstance: function(field) {
+                        getFirstFieldInstance: function (field) {
                             return Ext.String.format(
                                 this.fieldFormat,
                                 field,
                                 0
                             );
                         },
-                        getSecondFieldInstance: function(field) {
+                        getSecondFieldInstance: function (field) {
                             return Ext.String.format(
                                 this.fieldFormat,
                                 field,
                                 1
                             );
                         },
-                        getResponseData: function(aResponse) {
-                            var me = this, oj, data, tmp = {}, newData = [];
+                        getResponseData: function (aResponse) {
+                            var me = this,
+                                oj, data, tmp = {},
+                                newData = [];
                             try {
                                 oj = Ext.decode(aResponse.responseText);
                                 data = oj[this.getRootProperty()];
 
-                                Ext.each(data, function(r) {
-                                    var m = {}, fieldInstanceFn;
+                                Ext.each(data, function (r) {
+                                    var m = {},
+                                        fieldInstanceFn;
                                     if (
                                         me.getFirstUnit() &&
                                         r['Q_Unit'] === me.getFirstUnit()
@@ -1287,23 +1296,19 @@
                                     }
                                     tmp[r['Q_Indicator']] = tmp[
                                         r['Q_Indicator']
-                                    ] ||
-                                        {};
+                                    ] || {};
                                     tmp[r['Q_Indicator']][r['Q_Year']] = tmp[
                                         r['Q_Indicator']
-                                    ][r['Q_Year']] ||
-                                        {};
-                                    Ext.each(me.unitSpecificFields, function(
+                                    ][r['Q_Year']] || {};
+                                    Ext.each(me.unitSpecificFields, function (
                                         f
                                     ) {
                                         m[fieldInstanceFn.call(me, f)] = r[f];
                                         delete r[f];
                                     });
-                                    if (
-                                        !tmp[r['Q_Indicator']][r['Q_Year']][
+                                    if (!tmp[r['Q_Indicator']][r['Q_Year']][
                                             r['Q_Month']
-                                        ]
-                                    ) {
+                                        ]) {
                                         tmp[r['Q_Indicator']][r['Q_Year']][
                                             r['Q_Month']
                                         ] = r;
@@ -1330,10 +1335,10 @@
                 !Ext.ClassManager.isCreated('QRegPV.CountView') &&
                     Ext.define('QRegPV.CountView', {
                         extend: 'Ext.view.View',
-                        initComponent: function() {
-                            this.store = this.hypertoni
-                                ? 'QRegPVCountStoreHyp'
-                                : 'QRegPVCountStoreKrs';
+                        initComponent: function () {
+                            this.store = this.hypertoni ?
+                                'QRegPVCountStoreHyp' :
+                                'QRegPVCountStoreKrs';
                             this.tpl = new Ext.XTemplate(
                                 '<tpl for=".">',
                                 this.generateTemplateEl(
@@ -1352,14 +1357,14 @@
                         width: '100%',
                         deferEmptyText: false,
                         itemSelector: '.qreg-count-row',
-                        generateTemplateEl: function(mainContent, description) {
+                        generateTemplateEl: function (mainContent, description) {
                             return Ext.String.format(
                                 '<div class="qreg-count-row" style="border-right: 4px solid ' +
-                                    (this.hypertoni ? '#E98300' : '#614D7D') +
-                                    '"">' +
-                                    '<p class="qreg-count-count">{0}</p>' +
-                                    '<p class="qreg-count-desc">{1}</p>' +
-                                    '</div>',
+                                (this.hypertoni ? '#E98300' : '#614D7D') +
+                                '"">' +
+                                '<p class="qreg-count-count">{0}</p>' +
+                                '<p class="qreg-count-desc">{1}</p>' +
+                                '</div>',
                                 mainContent,
                                 description
                             );
@@ -1367,10 +1372,10 @@
                     });
                 //TODO: Remove after stratum deploy...
                 //Temporarily available unit stratum has been updated...
-                window.scrollToTop = function(offset) {
-                    (Ext.isChrome
-                        ? Ext.getBody()
-                        : Ext.get(document.documentElement)).scrollTo(
+                window.scrollToTop = function (offset) {
+                    (Ext.isChrome ?
+                        Ext.getBody() :
+                        Ext.get(document.documentElement)).scrollTo(
                         'top',
                         typeof offset === 'number' ? offset : 0,
                         true
