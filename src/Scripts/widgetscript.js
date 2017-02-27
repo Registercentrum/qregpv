@@ -721,7 +721,14 @@
                 Ext.each(arrData, function (row) {
                     var rowString = '';
                     Ext.Array.each(keys, function (propName) {
-                        rowString += row[propName] + ';';
+                        var value = row[propName];
+                        if(typeof value === 'number') {
+                            value = value.toLocaleString();
+                        }
+                        if(value instanceof Date) {
+                            value = value.toLocaleDateString();
+                        }
+                        rowString += value + ';';
                     });
                     rowString = rowString.slice(0, -1);
                     CSV += rowString + '\r\n';
