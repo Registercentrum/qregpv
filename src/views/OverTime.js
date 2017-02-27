@@ -214,7 +214,7 @@ Repository.Local.Methods.initialize(function(_m) {
                         var store = panel.getStore();
                         var data = Ext.Array.pluck(store.data.items, 'data');
                         var cleanedData = storeDataToTabell(data);
-                        var filename = 'QReg-' + _m.getIndicatorName(_m.getCurrentId()) + '-'+ new Date().toLocaleDateString();
+                        var filename = 'QRegPV-' + _m.getIndicatorName(_m.getCurrentId()) + '-'+ new Date().toLocaleDateString();
                         var csvPayload = _m.jsonToCSV(cleanedData, filename);
                         var element = document.createElement('a');
                         element.setAttribute('href', csvPayload.data);
@@ -269,7 +269,8 @@ Repository.Local.Methods.initialize(function(_m) {
             {
                 text: 'Andel',
                 dataIndex: 'Q_Varde_0',
-                flex: 1
+                flex: 1,
+                renderer:  Ext.util.Format.numberRenderer('0.0'),
             }
         ],
         width: 400
