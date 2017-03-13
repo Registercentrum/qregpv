@@ -1349,8 +1349,8 @@
                             this.tpl = new Ext.XTemplate(
                                 '<tpl for=".">',
                                 this.generateTemplateEl(
-                                    '{Q_Varde} med {Sickness}',
-                                    '{Q_Unit}, {Date}'
+                                    '{Q_Varde} med {Sickness}, {Date}',
+                                    '{Q_Unit}'
                                 ),
                                 '</tpl>'
                             );
