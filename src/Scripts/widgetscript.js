@@ -1167,7 +1167,7 @@
                             return newValue;
                         },
                         constructor: function (config) {
-                            config = Ext.merge(config, {
+                            config = Ext.merge(config || {}, {
                                 fieldStyle: {
                                     'border-left-width': '5px'
                                 }
