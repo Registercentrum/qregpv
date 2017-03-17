@@ -1067,7 +1067,7 @@
                         editable: true,
                         sendEmptyText: false,
                         checkChangeEvents: ['change', 'keyup'], //Stratum specific fix
-                        autoRender: true,
+                        // autoRender: true,
                         selectOnFocus: true,
                         listConfig: {
                             cls: 'qreg-combo-list',
@@ -1076,8 +1076,7 @@
                         queryMode: 'local',
                         labelAlign: 'top',
                         margin: '0 0 20px 0',
-                        labelCls: 'qreg-config-label',
-                        hideTrigger: true,
+                        labelCls: 'qreg-config-label',                        
                         fieldBodyCls: 'qregpv-clinic-input',
                         fieldLabel: '',
                         constructor: function (config) {
@@ -1087,7 +1086,7 @@
                                     'font-size': '15px',
                                     height: '32px',
                                     // 'border-width': '1px 1px 1px 5px',
-                                    'border-left-width': '5px',
+                                    
                                     'border-color': '#ccc',
                                     'border-style': 'solid',
                                     padding: '5px'
@@ -1095,11 +1094,8 @@
                             });
                             this.callParent([config]);
                         },
-                        typeAhead: true,
-                        anyMatch: true,
-                        forceSelection: true,
-                        msgTarget: 'side',
-                        afterBodyEl: '<span style="position: absolute;right: 9px;top: 30px; font-size: 18px; font-family: fontawesome; color: #DADADA; pointer-events: none;">&#xf002;</span>',
+                        
+                        msgTarget: 'side',                        
                         listeners: {
                             focus: function () {
                                 this.expand();
@@ -1171,11 +1167,21 @@
                             return newValue;
                         },
                         constructor: function (config) {
+                            config = Ext.merge(config || {}, {
+                                fieldStyle: {
+                                    'border-left-width': '5px'
+                                }
+                            });
                             this.callParent([config]);
                         },
+                        typeAhead: true,
+                        anyMatch: true,
+                        forceSelection: true,
                         displayField: 'UnitName',
                         valueField: 'UnitID',
                         emptyText: 'Sök efter en vårdcentral...',
+                        hideTrigger: true,
+                        afterBodyEl: '<span style="position: absolute;right: 9px;top: 30px; font-size: 18px; font-family: fontawesome; color: #DADADA; pointer-events: none;">&#xf002;</span>',
                         listeners: {
                             select: function (cb, records) {
                                 var me = this,
