@@ -67,6 +67,7 @@ Repository.Local.Methods.initialize(function(_m) {
         listeners: {
             select: function(aCombo, aSelection) {
                 var newValue = aSelection.get('valueCode');
+                _m.qregPVSettings.selectedIndicator = newValue;
                 mainStore.clearFilter(true);
                 mainStore.filterBy(function(item) {
                     return item.get('Q_Year') > startYear &&
