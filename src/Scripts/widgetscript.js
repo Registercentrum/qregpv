@@ -577,7 +577,6 @@
                     colors: ['#B39C85', '#FF5335'],
                     indicatorType: '10',
                     viewIds: ['1001', '1004', '1003', '1005', '1006'],
-                    selectedIndicator: '1001'
                 };
             },
             getHSAID: function () {
@@ -614,8 +613,7 @@
                 return this.qregPVSettings.viewIds;
             },
             getCurrentId: function () {
-                return this.qregPVSettings.selectedIndicator ||
-                    this.qregPVSettings.viewIds[0];
+                return this.qregPVSettings.selectedIndicator;                    
             },
             getViewIdFirstOrDefault: function () {
                 return this.qregPVSettings.viewId &&
