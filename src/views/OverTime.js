@@ -10,7 +10,7 @@ Repository.Local.Methods.initialize(function(_m) {
         clinicChangeFn,
         dataTable;
 
-    mainStore = _m.getMainStore({
+    mainStore = window.mainStore = _m.getMainStore({
         beforeLoadFn: function() {
             mainChart && mainChart.setLoading('Laddar...');
         },
@@ -34,7 +34,22 @@ Repository.Local.Methods.initialize(function(_m) {
             }
         ]
     });
-
+    function getMaxMinValues(store) {
+        var min = 100;
+        var max = 0;
+        store.each(function(x) {
+            if (!x.get('Q_Taljare') || x.get('Q_Taljare') > x.get('Q_Namnare_0')) {
+                return;
+            }
+            max = Math.max(max, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
+            console.log(max, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
+            min = Math.min(min, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
+        });
+        return {
+            min: min,
+            max: max
+        };
+    }
     indicatorSelection = Ext.create('QRegPV.IndicatorCombo', {
         emptyText: 'Välj indikator ...',
         store: Ext.create('Ext.data.Store', {
@@ -74,6 +89,7 @@ Repository.Local.Methods.initialize(function(_m) {
                     return item.get('Q_Year') > startYear &&
                         newValue === item.get('Q_Indicator');
                 });
+                console.log(getMaxMinValues(mainStore));
                 var indicatorName = _m.getIndicatorName(newValue);
                 dataTable.setTitle(indicatorName);
                 mainChart.setTitle(indicatorName);
@@ -295,6 +311,7 @@ Repository.Local.Methods.initialize(function(_m) {
             titles = this.getRawValue();
             series.setTitle(titles);
         }
+        console.log(getMaxMinValues(mainStore));
         dataTable && dataTable.updateLayout();
     };
 
