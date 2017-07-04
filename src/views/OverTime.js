@@ -34,7 +34,29 @@ Repository.Local.Methods.initialize(function(_m) {
             }
         ]
     });
+    mainStore.on('filterchange', addMarginToAxis);
 
+    function addMarginToAxis() {
+        var axisLimits = getMaxMinAxisValues(mainStore);
+        var numericAxis = mainChart.getAxis(0);
+        numericAxis.setMaximum(axisLimits.maximum);
+        numericAxis.setMinimum(axisLimits.minimum);
+        mainChart.updateAxes();
+    };
+
+    function getMaxMinAxisValues(store) {
+        var margin = 5;
+        var min = 100;
+        var max = 0;
+        store.each(function(x) {
+            max = Math.max(max, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
+            min = Math.min(min, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
+        });
+        return {
+            minimum: Math.max(0, min-margin),
+            maximum: Math.min(100, max+margin)
+        };
+    }
     indicatorSelection = Ext.create('QRegPV.IndicatorCombo', {
         emptyText: 'Välj indikator ...',
         store: Ext.create('Ext.data.Store', {
@@ -100,6 +122,11 @@ Repository.Local.Methods.initialize(function(_m) {
         title: _m.getIndicatorName(_m.getCurrentId()),
         legend: {
             docked: 'bottom'
+        },
+        listeners: {
+            beforedestroy: function() {
+                mainStore.un('filterchange', addMarginToAxis);
+            }
         },
         axes: [
             {
