@@ -10,7 +10,7 @@ Repository.Local.Methods.initialize(function(_m) {
         clinicChangeFn,
         dataTable;
 
-    mainStore = window.mainStore = _m.getMainStore({
+    mainStore =  _m.getMainStore({
         beforeLoadFn: function() {
             mainChart && mainChart.setLoading('Laddar...');
         },
@@ -34,20 +34,27 @@ Repository.Local.Methods.initialize(function(_m) {
             }
         ]
     });
-    function getMaxMinValues(store) {
+    mainStore.on('filterchange', addMarginToAxis);
+
+    function addMarginToAxis() {
+        var axisLimits = getMaxMinAxisValues(mainStore);
+        var numericAxis = mainChart.getAxis(0);
+        numericAxis.setMaximum(axisLimits.maximum);
+        numericAxis.setMinimum(axisLimits.minimum);
+        mainChart.updateAxes();
+    };
+
+    function getMaxMinAxisValues(store) {
+        var margin = 5;
         var min = 100;
         var max = 0;
         store.each(function(x) {
-            if (!x.get('Q_Taljare') || x.get('Q_Taljare') > x.get('Q_Namnare_0')) {
-                return;
-            }
             max = Math.max(max, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
-            console.log(max, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
             min = Math.min(min, x.get('Q_Varde_0'), x.get('Q_Varde_1'));
         });
         return {
-            min: min,
-            max: max
+            minimum: Math.max(0, min-margin),
+            maximum: Math.min(100, max+margin)
         };
     }
     indicatorSelection = Ext.create('QRegPV.IndicatorCombo', {
@@ -89,7 +96,6 @@ Repository.Local.Methods.initialize(function(_m) {
                     return item.get('Q_Year') > startYear &&
                         newValue === item.get('Q_Indicator');
                 });
-                console.log(getMaxMinValues(mainStore));
                 var indicatorName = _m.getIndicatorName(newValue);
                 dataTable.setTitle(indicatorName);
                 mainChart.setTitle(indicatorName);
@@ -116,6 +122,11 @@ Repository.Local.Methods.initialize(function(_m) {
         title: _m.getIndicatorName(_m.getCurrentId()),
         legend: {
             docked: 'bottom'
+        },
+        listeners: {
+            beforedestroy: function() {
+                mainStore.un('filterchange', addMarginToAxis);
+            }
         },
         axes: [
             {
@@ -311,7 +322,6 @@ Repository.Local.Methods.initialize(function(_m) {
             titles = this.getRawValue();
             series.setTitle(titles);
         }
-        console.log(getMaxMinValues(mainStore));
         dataTable && dataTable.updateLayout();
     };
 
