@@ -10,7 +10,7 @@ Repository.Local.Methods.initialize(function(_m) {
         clinicChangeFn,
         dataTable;
 
-    mainStore =  _m.getMainStore({
+    mainStore = _m.getMainStore({
         beforeLoadFn: function() {
             mainChart && mainChart.setLoading('Laddar...');
         },
