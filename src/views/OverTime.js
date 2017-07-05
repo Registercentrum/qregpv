@@ -23,8 +23,7 @@ Repository.Local.Methods.initialize(function(_m) {
             'Y-m-d'
         ),
         filter: function(item) {
-            
-            return item.get('Q_Year') > startYear &&            
+            return item.get('Q_Year') > startYear &&
                 _m.getCurrentId() === item.get('Q_Indicator');
         },
         sorters: [
@@ -331,7 +330,7 @@ Repository.Local.Methods.initialize(function(_m) {
     clinicChangeFn.call(clinicComboPrimary);
     clinicChangeFn.call(clinicComboSecondary);
     mainChart.refreshLegendStore();
-    mainStore.loadNewUnitData();    
+    mainStore.loadNewUnitData();
     configContainer = Ext.create('QRegPV.ConfigContainer', {
         margin: '0 0 20px 0',
         layout: {
