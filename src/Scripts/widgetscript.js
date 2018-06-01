@@ -158,7 +158,7 @@
                                     proxy: {
                                         type: 'ajax',
                                         cors: true, //TODO: remove in production
-                                        url: '/api/metadata/domains/map/5656',
+                                        url: '/stratum/api/metadata/domains/map/5656',
                                         reader: {
                                             type: 'objecttoarray',
                                             rootProperty: 'data.Unit'
@@ -191,7 +191,7 @@
                 initializeLatestDate: function (callback) {
                     var repo = this;
                     Ext.Ajax.request({
-                        url: '//stratum.registercentrum.se/api/aggregate/QRegPV/QRegPV/Total/Max(Q_Month)/Q_Year',
+                        url: '/stratum/api/aggregate/QRegPV/QRegPV/Total/Max(Q_Month)/Q_Year',
                         localCall: true, //TODO: Remove
                         method: 'get',
                         success: function (response) {
@@ -247,7 +247,7 @@
                             }),
                             proxy: {
                                 type: 'ajax',
-                                url: '/api/metadata/domains/map/5655',
+                                url: '/stratum/api/metadata/domains/map/5655',
                                 reader: {
                                     type: 'objecttoarray',
                                     rootProperty: 'data.Indikatorer'
@@ -327,7 +327,7 @@
                             },
                             loadCountData: function (HSAID, year, month) {
                                 var loadFn = function () {
-                                    var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Year%20eq%20{1},Q_Month%20eq%20{2},Q_Indicator%20in%20{3}|{4},Q_Unit%20eq%20{0}';
+                                    var url = '/stratum/api/registrations/form/2179?query=Q_Year%20eq%20{1},Q_Month%20eq%20{2},Q_Indicator%20in%20{3}|{4},Q_Unit%20eq%20{0}';
                                     this.proxy.url = Ext.String.format(
                                         url,
                                         HSAID,
@@ -403,7 +403,7 @@
                                     'Y-m-d'
                                 );
                                 var loadFn = function () {
-                                    var url = '//stratum.registercentrum.se/api/registrations/form/2179?query=Q_Date%20gt%20' +
+                                    var url = '/stratum/api/registrations/form/2179?query=Q_Date%20gt%20' +
                                         startDate +
                                         ',Q_Unit%20in%20{0}|{1}';
                                     // var filters;
