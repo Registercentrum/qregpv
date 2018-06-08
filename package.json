@@ -17,21 +17,4 @@
     "url": "https://github.com/Registercentrum/qregpv/issues"
   },
   "homepage": "https://github.com/Registercentrum/qregpv#readme",
-  "devDependencies": {
-    "browser-sync": "^2.18.6",
-    "del": "^2.2.2",
-    "express": "^4.14.1",
-    "font-awesome": "^4.7.0",
-    "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.3.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-css2js": "^1.0.2",
-    "gulp-inject": "^4.2.0",
-    "gulp-nodemon": "^2.2.1",
-    "gulp-order": "^1.1.1",
-    "gulp-sourcemaps": "^2.4.0",
-    "gulp-uglify": "^2.0.1",
-    "http-proxy-middleware": "^0.17.3",
-    "nodemon": "^1.11.0"
-  }
 }
