@@ -298,7 +298,6 @@
                         },
                         tooltip: {
                             trackMouse: true,
-                            cls: 'tooltip',
                             renderer: function(storeItem, item) {
                                 this.setHtml(
                                     Ext.String.format(
