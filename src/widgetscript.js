@@ -926,7 +926,7 @@
                         position: 'left',
                         // fields: config.yField,
                         renderer: function (v) {
-                            return Ext.util.Format.number(v, '0%');
+                            return Ext.util.Format.number(v, '0 %');
                         },
                         label: {
                             fontSize: 11

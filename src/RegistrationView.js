@@ -239,7 +239,7 @@
                                     renderer: function(v) {
                                         return Ext.util.Format.number(
                                             v,
-                                            '0.0%'
+                                            '0.0 %'
                                         );
                                     },
                                     fontSize: 10,

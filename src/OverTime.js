@@ -170,7 +170,7 @@
                         type: 'numeric',
                         position: 'left',
                         fields: ['Q_Varde_0', 'Q_Varde_1'],
-                        renderer: Ext.util.Format.numberRenderer('0%'),
+                        renderer: Ext.util.Format.numberRenderer('0 %'),
                         dashSize: 0,
                         grid: true,
                     },

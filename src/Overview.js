@@ -238,7 +238,7 @@
                             strokeStyle: '#F7F7F9',
                         },
                         renderer: function(v) {
-                            return Ext.util.Format.number(v, '0%');
+                            return Ext.util.Format.number(v, '0 %');
                         },
                     },
                     {
@@ -305,7 +305,7 @@
                                         _m.getUnitName(storeItem.get('Q_Unit')),
                                         Ext.util.Format.number(
                                             storeItem.get('Q_Varde'),
-                                            '0.0%'
+                                            '0.0 %'
                                         ),
                                         storeItem.store.indexOf(storeItem) + 1,
                                         storeItem.store.count()
@@ -364,7 +364,7 @@
                             strokeStyle: '#fff',
                         },
                         minimum: 0,
-                        renderer: Ext.util.Format.numberRenderer('0%'),
+                        renderer: Ext.util.Format.numberRenderer('0 %'),
                         dashSize: 0,
                         grid: true,
                     },
