@@ -46,6 +46,7 @@
                 combinedMeasureChart,
                 scatterTitle,
                 rankingChartContainer,
+                rankingChartDescription,
                 configContainer,
                 primaryGradient,
                 secondaryGradient;
@@ -273,6 +274,10 @@
                     },
                 },
             });
+            rankingChartDescription = Ext.create('Ext.container.Container', {
+                hidden: true,
+                html: '<i>*) Punktdiagrammet visar vårdcentralens ranking bland samtliga vårdcentraler, för det senaste rapporterade värdet.</i>'
+            });
             rankingChartContainer = Ext.create('Ext.container.Container', {
                 cls: 'chartbox',
                 margin: '20px 0',
@@ -280,7 +285,7 @@
                     type: 'vbox',
                     align: 'stretch',
                 },
-                items: [scatterTitle, rankingChart],
+                items: [scatterTitle, rankingChart, rankingChartDescription],
             });
 
             function getSeriesConfiguration(order) {
@@ -341,7 +346,7 @@
                             );
                             this.setHtml(
                                 Ext.String.format(
-                                    '{0}<br/><b>{1}</b> ({2})<br/>{3} uppfyller registrering<hr/><i>Klicka för att se ranking nedan</i>',
+                                    '{0}<br/><b>{1}</b> ({2})<br/>{3} uppfyller registrering<hr/><i>Klicka för att se ranking nedan.</i>',
                                     unit,
                                     value,
                                     date,
@@ -358,6 +363,7 @@
 
                             if (rankingChart.isHidden()) {
                                 scatterTitle.destroy();
+                                rankingChartDescription.show();
                                 rankingChart.show();
                             } else {
                                 window.scrollToTop(

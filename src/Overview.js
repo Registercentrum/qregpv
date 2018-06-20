@@ -45,6 +45,7 @@
                 startYear = _m.getStartYear(),
                 rankingChart,
                 rankingChartContainer,
+                rankingChartDescription,
                 configContainer,
                 loadScatterChart,
                 tipChart,
@@ -195,7 +196,7 @@
 
             scatterTitle = Ext.create('Ext.container.Container', {
                 html:
-                    '<span class="box-description">Klicka på en stapel för att visa rankning bland andra enheter</span>',
+                    '<span class="box-description">Klicka på en stapel för att visa rankning bland andra enheter.</span>',
             });
             loadScatterChart = function(series, item) {
                 var selectedItem = item.record,
@@ -327,6 +328,10 @@
                     },
                 },
             });
+            rankingChartDescription = Ext.create('Ext.container.Container', {
+                hidden: true,
+                html: '<i>*) Punktdiagrammet visar vårdcentralens ranking bland samtliga vårdcentraler, för det senaste rapporterade värdet.</i>'
+            });
             rankingChartContainer = Ext.create('Ext.container.Container', {
                 cls: 'chartbox',
                 margin: '20px 0',
@@ -334,7 +339,7 @@
                     type: 'vbox',
                     align: 'stretch',
                 },
-                items: [scatterTitle, rankingChart],
+                items: [scatterTitle, rankingChart, rankingChartDescription],
             });
             tipChart = Ext.create('QRegPV.TipChart', {
                 colors: [_m.getPrimaryColor(), _m.getSecondaryColor()],
@@ -562,6 +567,7 @@
             function showScatterChart() {
                 scatterTitle.destroy();
                 if (rankingChart.isHidden()) {
+                    rankingChartDescription.show();
                     rankingChart.show();
                 } else {
                     window.scrollToTop(rankingChartContainer.getY());
